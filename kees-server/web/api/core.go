@@ -9,7 +9,8 @@ import (
 )
 
 func Configure(router *mux.Router, path string) {
-	router.HandleFunc("/", Root).Methods("GET")
+	api := router.PathPrefix(path).Subrouter()
+	api.HandleFunc("/", Root).Methods("GET")
 }
 
 func Root(w http.ResponseWriter, r *http.Request) {
