@@ -1,0 +1,30 @@
+#!/bin/bash
+
+
+export GIT_COMMIT=$(git rev-list -1 HEAD)
+export KEES_CONFIG="./kees.yml"
+
+
+case $1 in
+  build)
+    gofmt -w .
+    go build -ldflags "-X kees-server/constants.GitCommit=$GIT_COMMIT"
+    ;;
+
+  migration)
+    MIGRATION_FILE="$(date +%s_%Y-%m-%d_%H-%M-%S)_${2}.sql"
+    printf "\n\n\nINSERT INTO migrations (name, migrated_at)\n  VALUES (\"%s\", strftime('%%s', \"now\"));" $MIGRATION_FILE > db/migrations/$MIGRATION_FILE
+    ;;
+
+  migrate)
+    for migration in `ls db/migrations/*.sql`; do
+      echo $migration
+    done
+
+    ;;
+
+
+  *)
+    echo "Unrecognized kees Command"
+    ;;
+esac

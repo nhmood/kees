@@ -1,0 +1,8 @@
+database:
+  type: "sqlite"
+  path: "db/kees.sqlite"
+logging:
+  debug: false
+  spew_depth: 2
+server:
+  port: "6543"
