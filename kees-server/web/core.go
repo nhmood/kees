@@ -12,6 +12,7 @@ import (
 	"kees-server/web/api"
 	"kees-server/web/middlewares"
 	"kees-server/web/responses"
+	"kees-server/web/websocket"
 )
 
 var handler http.Handler
@@ -25,6 +26,7 @@ func Configure(c config.ServerConfig) {
 	router.HandleFunc("/", Root)
 
 	api.Configure(router, "/api")
+	websocket.Configure(router, "/ws")
 
 	handler = middlewares.AddBaseHeaders(router)
 	handler = middlewares.AddLogging(handler)
