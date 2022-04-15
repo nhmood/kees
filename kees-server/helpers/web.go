@@ -59,3 +59,15 @@ func GetParam(r *http.Request, path string, location Location) int64 {
 	paramID, _ := strconv.ParseInt(param, 10, 64)
 	return paramID
 }
+
+func ToInterface(data interface{}) map[string]interface{} {
+	str, _ := Format(data)
+	var conv map[string]interface{}
+	json.Unmarshal([]byte(str), &conv)
+	return conv
+}
+
+func ToStruct(data interface{}, target interface{}) {
+	str, _ := Format(data)
+	json.Unmarshal([]byte(str), target)
+}
