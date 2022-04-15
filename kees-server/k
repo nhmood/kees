@@ -23,6 +23,18 @@ case $1 in
 
     ;;
 
+  run)
+    ./kees-server
+    ;;
+
+  again)
+    ./k build
+    if [ $? -ne 0 ]; then
+      echo "Build failed"
+      exit 1
+    fi
+    ./k run
+    ;;
 
   *)
     echo "Unrecognized kees Command"
