@@ -34,7 +34,7 @@ func Configure(c config.ServerConfig) {
 func Root(w http.ResponseWriter, r *http.Request) {
 	helloWorld := responses.Generic{
 		Message: "Hello World from kees-server!",
-		Data: map[string]string{
+		Data: map[string]interface{}{
 			"commit": constants.GitCommit,
 		},
 	}
