@@ -10,20 +10,7 @@ type Config struct {
 	Database DatabaseConfig `yaml:"database"`
 	Logging  LoggingConfig  `yaml:"logging"`
 	Server   ServerConfig   `yaml:"server"`
-}
-
-type LoggingConfig struct {
-	Debug     bool `yaml:"debug"`
-	SpewDepth int  `yaml:"spew_depth"`
-}
-
-type DatabaseConfig struct {
-	Type string `yaml:"type"`
-	Path string `yaml:"path"`
-}
-
-type ServerConfig struct {
-	Port string `yaml:"port"`
+	JWT      JWTConfig      `yaml:"jwt"`
 }
 
 func ReadConfig(filename string) (*Config, error) {

@@ -5,4 +5,7 @@ logging:
   debug: false
   spew_depth: 2
 server:
-  port: "6543"
+  port: "1935"
+jwt:
+  issuer: "kees-server"
+  signing_key: "mysigningkey" # maybe import with env
