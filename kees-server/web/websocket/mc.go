@@ -3,6 +3,7 @@ package websocket
 import (
 	"github.com/gorilla/websocket"
 	"net/http"
+	"sync"
 
 	"kees-server/helpers"
 )
@@ -14,7 +15,7 @@ type WebSocketMessage struct {
 
 type MediaController struct {
 	Info    MediaControllerInfo
-	Active  bool
+	Active  sync.WaitGroup
 	Conn    *websocket.Conn
 	State   string
 	Outbox  chan WebSocketMessage
@@ -36,31 +37,30 @@ func MediaControllerV1(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	defer c.Close()
 
 	mediaController := MediaController{
 		Conn:    c,
-		Active:  true,
 		State:   "auth",
 		Outbox:  make(chan WebSocketMessage, 256),
 		Control: make(chan WebSocketMessage, 128),
 	}
 	helpers.Dump(mediaController)
 
+	mediaController.Active.Add(1)
 	go mediaController.readHandler()
 	go mediaController.writeHandler()
+
+	mediaController.Active.Wait()
+	helpers.Dump("Closing")
 }
 
 func (mc *MediaController) Disconnect(message WebSocketMessage) {
-	mc.Active = false
 	mc.State = "disconnect"
 	mc.Control <- message
 }
 
 func (mc *MediaController) readHandler() {
-	defer func() {
-		mc.Conn.Close()
-	}()
-
 	for {
 		helpers.Dump(mc.Active)
 		payload := WebSocketMessage{}
@@ -82,24 +82,23 @@ func (mc *MediaController) readHandler() {
 		if stateError != nil {
 			helpers.Dump(err)
 			mc.Disconnect(*stateError)
-			break
+			return
 		}
 	}
 }
 
 func (mc *MediaController) writeHandler() {
-	defer func() {
-		mc.Conn.Close()
-	}()
-
 	for {
 		select {
+		// TODO: might want to move mc.Control to separate controlHandler(+goroutine)
+		//       and signal to writeHandler separately
 		case disconnect, ok := <-mc.Control:
 			helpers.Dump(ok)
 			helpers.Dump(disconnect)
 
 			// TODO: do i need SetWriteDeadline here?
 			err := mc.Conn.WriteJSON(disconnect)
+			mc.Active.Done()
 			helpers.Dump(err)
 			return
 
