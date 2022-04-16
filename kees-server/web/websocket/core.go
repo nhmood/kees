@@ -3,6 +3,7 @@ package websocket
 import (
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 
@@ -13,6 +14,7 @@ import (
 var upgrader = websocket.Upgrader{}
 
 type MediaControllerInfo struct {
+	ID         string `json:"id"`
 	Name       string `json:"name"`
 	Version    string `json:"version"`
 	Controller string `json:"controller"`
@@ -63,7 +65,7 @@ func WebsocketAuthV1(w http.ResponseWriter, r *http.Request) {
 	token := r.Header.Get("X-Kees-MC-Token")
 	helpers.Debug(token)
 
-	// TODO: make this a database lookup
+	// TODO: make this a database lookup for token -> ID/registered device
 	if token != "cdplayer" {
 		data, err := helpers.Format(responses.Generic{
 			Message: "Unauthorized Media Controller",
@@ -80,6 +82,9 @@ func WebsocketAuthV1(w http.ResponseWriter, r *http.Request) {
 	}
 
 	controllerInfo := MediaControllerInfo{}
+	id := uuid.New()
+	controllerInfo.ID = id.String()
+
 	err := helpers.Parse(r, &controllerInfo)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -88,6 +93,7 @@ func WebsocketAuthV1(w http.ResponseWriter, r *http.Request) {
 
 	helpers.Debug(controllerInfo)
 	jwt, expiresIn, err := helpers.GenerateJWT(map[string]string{
+		"id":         controllerInfo.ID,
 		"name":       controllerInfo.Name,
 		"version":    controllerInfo.Version,
 		"controller": controllerInfo.Controller,
