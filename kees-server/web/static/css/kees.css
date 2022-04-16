@@ -1,0 +1,34 @@
+body {
+  text-align: center;
+}
+
+pre {
+  overflow-x: auto;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+}
+
+i {
+  border-radius: 10px;
+  padding: 10px;
+  background: #efefef;
+}
+
+.hide { display: none }
+.gray { background: #efefef; }
+.good { color: #087F8C; }
+.bad  { color: #EE7674; }
+
+.ws .logs { text-align: left; }
+.event {
+  padding-top: 10px;
+  padding-left: 10px;
+}
+
+.category {
+  text-transform: uppercase;
+  font-weight: 800;
+}

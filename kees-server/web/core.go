@@ -24,10 +24,9 @@ func Configure(c config.ServerConfig) {
 
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", Root)
-	router.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		http.ServeFile(w, r, "web/public/test.html")
-	})
+
+	fs := http.StripPrefix("/static/", http.FileServer(http.Dir("web/static/")))
+	router.PathPrefix("/static").Handler(fs)
 
 	api.Configure(router, "/api")
 	websocket.Configure(router, "/ws")
