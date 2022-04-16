@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/websocket"
 
 	"kees-server/helpers"
+	"kees-server/web/middlewares"
 	"kees-server/web/responses"
 )
 
@@ -33,6 +34,8 @@ type JWTResponse struct {
 
 func Configure(router *mux.Router, path string) {
 	ws := router.PathPrefix(path).Subrouter()
+	ws.Use(middlewares.AddJSONHeader)
+
 	ws.HandleFunc("/", WebsocketInfo).Methods("GET")
 	ws.HandleFunc("/v1/auth", WebsocketAuthV1).Methods("POST")
 	ws.HandleFunc("/v1/auth/check", WebsocketAuthCheckV1).Methods("GET")
