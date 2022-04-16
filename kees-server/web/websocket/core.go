@@ -34,6 +34,8 @@ func Configure(router *mux.Router, path string) {
 	ws.HandleFunc("/", WebsocketInfo).Methods("GET")
 	ws.HandleFunc("/v1/auth", WebsocketAuthV1).Methods("POST")
 	ws.HandleFunc("/v1/auth/check", WebsocketAuthCheckV1).Methods("GET")
+
+	ws.HandleFunc("/v1/mc", MediaControllerV1).Methods("GET")
 }
 
 func WebsocketInfo(w http.ResponseWriter, r *http.Request) {
