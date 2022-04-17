@@ -10,21 +10,16 @@ import (
 	"kees-server/helpers"
 	"kees-server/web/middlewares"
 	"kees-server/web/responses"
+
+	"kees-server/devices/mc"
 )
 
 var upgrader = websocket.Upgrader{}
 
-type MediaControllerInfo struct {
-	ID         string `json:"id"`
-	Name       string `json:"name"`
-	Version    string `json:"version"`
-	Controller string `json:"controller"`
-}
-
 type AuthResponse struct {
-	Message string              `json:"message"`
-	Device  MediaControllerInfo `json:"device"`
-	JWT     JWTResponse         `json:"jwt"`
+	Message string      `json:"message"`
+	Device  mc.Info     `json:"device"`
+	JWT     JWTResponse `json:"jwt"`
 }
 
 type JWTResponse struct {
@@ -84,7 +79,7 @@ func WebsocketAuthV1(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	controllerInfo := MediaControllerInfo{}
+	controllerInfo := mc.Info{}
 	id := uuid.New()
 	controllerInfo.ID = id.String()
 
