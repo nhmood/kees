@@ -1,29 +1,35 @@
-console.log('kees websocket test');
+console.log('kees websocket test client v0.0.1');
+
 var session = null;
 var ws = null;
 var logCount = 0;
-var authBtn = document.getElementById("sendAuth");
-authBtn.addEventListener('click', auth);
 
-var resetBtn = document.getElementById("reset");
-resetBtn.addEventListener('click', reset);
+var actions = setupHooks();
+restoreSession();
 
 
-var checkBtn = document.getElementById("checkAuth");
-checkBtn.addEventListener('click', check);
-var wsBtn = document.getElementById("startWS");
-wsBtn.addEventListener('click', startWS);
+function setupHooks(){
+  let hooks = document.querySelectorAll('[hook]');
+  let actions = {};
+  hooks.forEach(h => {
+    let name = h.attributes.hook.value;
+    actions[name] = {
+      el: h,
+      toggle: () => { toggleElement(h); },
+      show:   () => { showElement(h); },
+      hide:   () => { hideElement(h); }
+    };
 
-var gaBtn = document.getElementById("goodAuth");
-gaBtn.addEventListener('click', goodAuth);
-var baBtn = document.getElementById("badAuth");
-baBtn.addEventListener('click', badAuth);
+    h.addEventListener('click', window[name]);
+  });
 
-
-if (localStorage.getItem('kees')){
-  console.log("session exists");
-  restoreSession();
+  return actions;
 }
+
+function toggleElement(el){ el.classList.toggle('hide'); }
+function showElement(el)  { el.classList.remove('hide'); }
+function hideElement(el)  { el.classList.add('hide'); }
+
 
 function auth(){
   console.log("Authing Device");
@@ -43,8 +49,7 @@ function reset(){
     ws.close();
   }
 
-  var resetBtn = document.getElementById("reset");
-  resetBtn.classList.add("hide");
+  actions["reset"].hide();
 
   var id = document.querySelector(".info .id").innerHTML = '';
   var check = document.querySelector(".check");
@@ -57,8 +62,7 @@ function reset(){
     e.classList.add("hide");
   });
 
-  var sendAuth = document.getElementById("sendAuth");
-  sendAuth.classList.remove("hide");
+  actions["auth"].show();
 }
 
 async function check(){
@@ -83,7 +87,7 @@ async function check(){
 
 function getDetails(){
   console.log("Getting Device Details");
-  var details = document.getElementById("auth")
+  var details = document.querySelector(".main .device .details");
   var deviceInfo = {
     name: details.querySelector("#name").value,
     version: details.querySelector("#version").value,
@@ -123,20 +127,26 @@ async function submitAuth(token, payload){
 
 
 function restoreSession(){
+  if (!localStorage.getItem('kees')){
+    console.log('session not found, need to auth');
+    return;
+  }
+
+  console.log('session found, restoring');
   session = JSON.parse(localStorage.getItem('kees'));
   console.log(session);
 
+  addWSLog("auth", "session", session);
 
-  var sendAuth = document.getElementById("sendAuth");
-  sendAuth.classList.add("hide");
-  var reset = document.getElementById("reset");
-  reset.classList.remove("hide");
+  actions["auth"].hide();
+
+  actions["reset"].show();
 
 
-  var details = document.getElementById("auth");
-  details.querySelector("#name").value = session.device.name;
-  details.querySelector("#version").value = session.device.version;
-  details.querySelector("#controller").value = session.device.controller;
+  var deviceInfo = document.querySelector(".main .device .details");
+  deviceInfo.querySelector("#name").value = session.device.name;
+  deviceInfo.querySelector("#version").value = session.device.version;
+  deviceInfo.querySelector("#controller").value = session.device.controller;
 
   var id = document.querySelector(".info .id").innerHTML = `
     <strong>device id</strong><br> ${session.device.id}

@@ -15,7 +15,7 @@
 
       <div class="row main">
         <div class="device six columns">
-          <form id="auth">
+          <form class="details">
             <label for="name">device name</label>
             <input type="text" id="name" value="browser kees client"><br>
             <label for="version">device version</label>
@@ -24,40 +24,41 @@
             <input type="text" id="controller" value="sony-cdp291"><br>
             <label for="deviceToken">device token</label>
             <input type="text" id="deviceToken" value="cdplayer"><br>
-          </form>
+          </form><!-- auth -->
 
-          <button id="sendAuth">auth</button>
-          <button id="reset" class="hide">reset</button>
-
-
-        </div>
+          <button hook="auth">auth</button>
+          <button hook="reset" class="hide">reset</button>
+        </div><!-- device -->
 
         <div class="info six columns">
           <div class="row id"></div>
+
           <div class="row check hide">
-            <button id="checkAuth">check auth</button>
+            <button hook="check">check auth</button>
             <i class="hide"></i>
           </div>
 
           <div class="row wsStart hide">
-            <button id="startWS">start ws</button>
+            <button hook="startWS">start ws</button>
             <i class="hide"></i>
           </div>
+
           <hr>
 
           <div class="row wsAction hide">
-            <button id="goodAuth">send good auth</button>
-            <button id="badAuth">send bad auth</button>
+            <button hook="goodAuth">send good auth</button>
+            <button hook="badAuth">send bad auth</button>
           </div>
-        </div>
-      </div>
+        </div><!-- info -->
+      </div><!-- main -->
+
       <hr>
 
       <div class="row ws">
         <h2>logs</h2>
         <div class="row logs">
         </div>
-      </div>
+      </div><!-- ws -->
     </div>
   </body>
 
