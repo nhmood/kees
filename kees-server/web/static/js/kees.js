@@ -1,283 +1,284 @@
 console.log('kees websocket test client v0.0.1');
 
-var session = null;
-var ws = null;
-var logCount = 0;
+class KeesClient {
+  constructor(){
+    this.session = undefined;
+    this.ws = undefined;
+    this.logCount = 0;
 
-var actions = setupHooks();
-restoreSession();
+    this.actions = this.setupHooks();
+    this.elements = this.setupElements();
+    this.restoreSession();
+  }
+
+  elWrap(el){
+    return {
+      el: el,
+      toggle: () => { this.toggleElement(el); },
+      show:   () => { this.showElement(el); },
+      hide:   () => { this.hideElement(el); },
+      clear:  () => { this.clearElement(el); }
+    }
+  }
+
+  toggleElement(el){ el.classList.toggle('hide'); }
+  showElement(el)  { el.classList.remove('hide'); }
+  hideElement(el)  { el.classList.add('hide'); }
+  clearElement(el) { el.innerHTML = ''; }
+
+  setupHooks(){
+    let hooks = document.querySelectorAll('[hook]');
+    let actions = {};
+    hooks.forEach(h => {
+      let name = h.attributes.hook.value;
+      actions[name] = this.elWrap(h);
+      h.addEventListener('click', (e) => {
+        this[name].bind(this)(e);
+      });
+    });
+
+    return actions;
+  }
 
 
-function setupHooks(){
-  let hooks = document.querySelectorAll('[hook]');
-  let actions = {};
-  hooks.forEach(h => {
-    let name = h.attributes.hook.value;
-    actions[name] = {
-      el: h,
-      toggle: () => { toggleElement(h); },
-      show:   () => { showElement(h); },
-      hide:   () => { hideElement(h); }
+  setupElements(){
+    let elements = {}
+    let check = document.querySelector(".check");
+    elements['check'] = this.elWrap(check);
+
+    let ws = document.querySelector(".startWS");
+    elements['startWS'] = this.elWrap(ws);
+
+    let device = document.querySelector(".main .device .details");
+    elements['device'] = this.elWrap(device);
+
+    let deviceID = document.querySelector(".info .id");
+    elements['deviceID'] = this.elWrap(deviceID);
+
+    let logs = document.querySelector(".ws .logs");
+    elements['logs'] = this.elWrap(logs);
+
+    let actions = document.querySelector(".wsActions");
+    elements['wsActions'] = this.elWrap(actions);
+
+    return elements;
+  }
+
+  setupDevice(device){
+    this.device = {
+      id: device.id,
+      name: device.name,
+      version: device.version,
+      controller: device.controller
     };
 
-    h.addEventListener('click', window[name]);
-  });
 
-  return actions;
-}
-
-function toggleElement(el){ el.classList.toggle('hide'); }
-function showElement(el)  { el.classList.remove('hide'); }
-function hideElement(el)  { el.classList.add('hide'); }
-
-
-function auth(){
-  console.log("Authing Device");
-  var details = getDetails();
-  console.log(details);
-
-  submitAuth(details.token, details.device);
-}
-
-function reset(){
-  console.log("clearing session");
-  localStorage.removeItem("kees");
-
-  addWSLog("auth", "reset", {});
-
-  if (ws){
-    ws.close();
+    return device;
   }
 
-  actions["reset"].hide();
+  setupDeviceUI(){
+    let el = this.elements.device.el;
+    el.querySelector('#name').value = this.device.name;
+    el.querySelector('#version').value = this.device.version;
+    el.querySelector('#controller').value = this.device.controller;
 
-  var id = document.querySelector(".info .id").innerHTML = '';
-  var check = document.querySelector(".check");
-  check.classList.add("hide");
+    this.elements.deviceID.el.innerHTML = `
+      <strong>device id</strong><br> ${this.device.id}
+    `;
+  }
 
-  var wsStart = document.querySelector(".wsStart");
-  wsStart.classList.add("hide");
+  deviceSet(source){
+    let fields = this.elements.device.el.querySelectorAll("input");
+    console.log(fields);
+  }
 
-  var icons = document.querySelectorAll(".info i").forEach(e => {
-    e.classList.add("hide");
-  });
 
-  actions["auth"].show();
-}
-
-async function check(){
-  var status = document.querySelector(".check i");
-  status.classList = 'fa-solid fa-circle-notch fa-spin';
-
-  addWSLog("auth", "check", session.jwt);
-
-  let resp = await fetch('/ws/v1/auth/check', {
-    method: "GET",
-    headers: {
-      'X-Kees-JWT-Token': session.jwt.token
+  restoreSession(){
+    if (!localStorage.getItem('kees')){
+      console.log('session not found, need to auth');
+      return;
     }
-  });
 
-  let data = await resp.json();
-  console.log(data);
-  addWSLog("auth", "check ack", data);
-  status.classList = 'fa-solid fa-check good';
-}
+    this.session = JSON.parse(localStorage.getItem('kees'));
+    this.event("auth", "session", this.session);
 
+    this.actions.auth.hide();
+    this.actions.reset.show();
 
-function getDetails(){
-  console.log("Getting Device Details");
-  var details = document.querySelector(".main .device .details");
-  var deviceInfo = {
-    name: details.querySelector("#name").value,
-    version: details.querySelector("#version").value,
-    controller: details.querySelector("#controller").value
+    this.device = this.setupDevice(this.session.device);
+    this.setupDeviceUI();
+
+    this.elements.check.show();
+    this.elements.startWS.show();
   }
 
-  var token = details.querySelector("#deviceToken").value;
 
-  var payload = {
-    device: deviceInfo,
-    token: token
-  }
-  return payload;
-}
-
-async function submitAuth(token, payload){
-  addWSLog("auth", "auth", {token: token, payload: payload});
-
-  let resp = await fetch('/ws/v1/auth', {
-    method: 'POST',
-    headers: {
-      'X-Kees-MC-Token': token
-    },
-    body: JSON.stringify(payload)
-  });
-
-  console.log(resp);
-
-  let data = await resp.json();
-  console.log(data);
-
-  addWSLog("auth", "auth ack", data);
-
-  localStorage.setItem('kees', JSON.stringify(data));
-  restoreSession();
-}
-
-
-function restoreSession(){
-  if (!localStorage.getItem('kees')){
-    console.log('session not found, need to auth');
-    return;
-  }
-
-  console.log('session found, restoring');
-  session = JSON.parse(localStorage.getItem('kees'));
-  console.log(session);
-
-  addWSLog("auth", "session", session);
-
-  actions["auth"].hide();
-
-  actions["reset"].show();
-
-
-  var deviceInfo = document.querySelector(".main .device .details");
-  deviceInfo.querySelector("#name").value = session.device.name;
-  deviceInfo.querySelector("#version").value = session.device.version;
-  deviceInfo.querySelector("#controller").value = session.device.controller;
-
-  var id = document.querySelector(".info .id").innerHTML = `
-    <strong>device id</strong><br> ${session.device.id}
-  `;
-
-  var check = document.querySelector(".check");
-  check.classList.remove("hide");
-
-  var wsStart = document.querySelector(".wsStart");
-  wsStart.classList.remove("hide");
-}
-
-function addWSLog(category, type, data){
-  var logs = document.querySelector(".ws .logs");
-
-  logCount++;
-  var tmpl = logTemplate({
-    category: category,
-    type: type,
-    data: data
-  });
-
-  logs.prepend(tmpl);
-}
-
-
-function logTemplate(data){
-  var gray = (logCount % 2) == 0 ? 'gray' : '';
-  var tmpl = `
-    <div class="row event ${gray}">
-      <div class="four columns">
-        <div class="row category">${data.category}</div>
-        <div class="row type">${data.type}</div>
-        <div class="row date">${(new Date()).toLocaleString()}</div>
+  event(category, type, data){
+    this.logCount++;
+    var gray = (this.logCount % 2) == 0 ? 'gray' : '';
+    var tmpl = `
+      <div class="row event ${gray}">
+        <div class="four columns">
+          <div class="row category">${category}</div>
+          <div class="row type">${type}</div>
+          <div class="row date">${(new Date()).toLocaleString()}</div>
+        </div>
+        <div class="eight columns data">
+          <pre>${JSON.stringify(data, undefined, 2)}</pre>
+        </div>
       </div>
-      <div class="eight columns data">
-        <pre>${JSON.stringify(data.data, undefined, 2)}</pre>
-      </div>
-    </div>
-  `;
+    `;
 
-  var t = document.createElement("template");
-  t.innerHTML = tmpl;
-  var el = t.content.cloneNode(true);
-  return el;
-}
-
-function startWS(){
-  var status = document.querySelector(".wsStart i");
-  status.classList = 'fa-solid fa-circle-notch fa-spin';
-
-  var host = `ws://${document.location.host}/ws/v1/mc`;
-  console.log(`connecting to ${host}`);
-  ws = new WebSocket(host);
-  console.log(ws);
-
-  ws.onmessage = wsMessage;
-  ws.onerror = wsError;
-  ws.onclose = wsClose;
-  ws.onopen = wsOpen;
-}
-
-function wsOpen(e){
-  console.log("ws open");
-  console.log(e);
-
-  var status = document.querySelector(".wsStart i");
-  status.classList = 'fa-solid fa-check good';
-
-  var wsActions = document.querySelector(".wsAction");
-  wsActions.classList.remove("hide");
-
-  var ws = document.querySelector(".ws");
-  ws.classList.remove("hide");
-
-
-  var payload = {url: e.target.url};
-  addWSLog("ws", "open", payload);
-}
-
-function wsMessage(e){
-  console.log("ws message");
-  console.log(e);
-  var payload = JSON.parse(e.data);
-  addWSLog("ws", "inbound", payload);
-}
-
-function wsError(e){
-  console.log("ws error");
-  console.log(e);
-  addWSLog("ws", "error", e.data)
-}
-
-function wsClose(e){
-  console.log("ws close");
-  console.log(e);
-  var payload = {reason: e.reason, code: e.code, timestamp: e.timestamp, type: e.type, clean: e.wasClean}
-  addWSLog("ws", "close", payload);
-
-  ws = null;
-  var status = document.querySelector(".wsStart i");
-  status.classList = 'fa-solid fa-times bad';
-
-  var wsActions = document.querySelector(".wsAction");
-  wsActions.classList.add("hide");
-
-}
-
-function badAuth(){
-  badauth = {
-    message: "auth",
-    token: "eatmyshorts"
+    var t = document.createElement("template");
+    t.innerHTML = tmpl;
+    var el = t.content.cloneNode(true);
+    this.elements.logs.el.prepend(el);
   }
-  addWSLog("ws", "auth", badauth);
-  sendWS(badauth);
-}
 
 
-function goodAuth(){
-  auth = {
-    message: "auth",
-    data: {
-      token: session.jwt.token
+  getDeviceInfo(){
+    let el = this.elements.device.el;
+    let device = {
+      name: el.querySelector('#name').value,
+      version: el.querySelector('#version').value,
+      controller: el.querySelector('#controller').value
     }
+
+    let token = el.querySelector("#deviceToken").value;
+    let payload = {
+      device: device,
+      token: token
+    };
+
+    return payload;
   }
 
-  addWSLog("ws", "auth", auth);
-  sendWS(auth)
+  async auth(){
+    let deviceInfo = this.getDeviceInfo();
+    this.event("auth", "device info", deviceInfo);
+
+    let resp = await fetch('/ws/v1/auth', {
+      method: 'POST',
+      headers: {
+        'X-Kees-MC-Token': deviceInfo.token
+      },
+      body: JSON.stringify(deviceInfo.device)
+    });
+
+    let data = await resp.json();
+    this.event("auth", "auth ack", data);
+
+    localStorage.setItem('kees', JSON.stringify(data));
+    this.restoreSession();
+  }
+
+  reset(){
+    localStorage.removeItem("kees");
+    this.event("auth", "reset", {});
+    if (this.ws){ this.ws.close() };
+
+    this.actions.reset.hide();
+    this.elements.deviceID.clear();
+    this.elements.check.hide();
+    this.elements.startWS.hide();
+
+    // TODO: clean up icon grabbing
+    var icons = document.querySelectorAll(".info i").forEach(e => {
+      e.classList.add("hide");
+    });
+
+    this.actions.auth.show();
+  }
+
+  async check(){
+    // TODO: clean up icon grabbing
+    let status = this.elements.check.el.querySelector("i");
+    status.classList = 'fa-solid fa-circle-notch fa-spin';
+
+    this.event("auth", "check", this.session.jwt);
+
+    let resp = await fetch('/ws/v1/auth/check', {
+      method: "GET",
+      headers: {
+        'X-Kees-JWT-Token': this.session.jwt.token
+      }
+    });
+
+    let data = await resp.json();
+    this.event("auth", "check ack", data);
+    status.classList = 'fa-solid fa-check good';
+  }
+
+
+  startWS(){
+    var status = this.elements.startWS.el.querySelector("i");
+    status.classList = 'fa-solid fa-circle-notch fa-spin';
+
+    var host = `ws://${document.location.host}/ws/v1/mc`;
+    this.ws = new WebSocket(host);
+
+    this.ws.onmessage = this.wsMessage.bind(this);
+    this.ws.onerror   = this.wsError.bind(this);
+    this.ws.onclose   = this.wsClose.bind(this);
+    this.ws.onopen    = this.wsOpen.bind(this);
+  }
+
+  sendWS(data){
+    var payload = JSON.stringify(data);
+    this.ws.send(payload);
+  }
+
+  wsOpen(e){
+    var status = this.elements.startWS.el.querySelector("i");
+    status.classList = 'fa-solid fa-check good';
+
+    this.elements.wsActions.show();
+    this.event("ws", "open", {url: e.target.url});
+  }
+
+  wsMessage(e){
+    var payload = JSON.parse(e.data);
+    this.event("ws", "inbound", payload);
+  }
+
+  wsError(e){
+    this.event("ws", "error", e.data)
+  }
+
+  wsClose(e){
+    var payload = {reason: e.reason, code: e.code, timestamp: e.timestamp, type: e.type, clean: e.wasClean}
+    this.event("ws", "close", payload);
+
+    this.ws = null;
+    var status = this.elements.startWS.el.querySelector("i");
+    status.classList = 'fa-solid fa-times bad';
+
+    this.elements.wsActions.hide();
+  }
+
+  badAuth(){
+    let badauth = {
+      message: "auth",
+      token: "eatmyshorts"
+    }
+    this.event("ws", "auth", badauth);
+    this.sendWS(badauth);
+  }
+
+
+  goodAuth(){
+    let auth = {
+      message: "auth",
+      data: {
+        token: this.session.jwt.token
+      }
+    }
+
+    this.event("ws", "auth", auth);
+    this.sendWS(auth)
+  }
+
+
 }
 
-function sendWS(data){
-  var payload = JSON.stringify(data);
-  ws.send(payload);
-}
+var k = new KeesClient
