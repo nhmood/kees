@@ -39,6 +39,13 @@ func New(conn *websocket.Conn) *MediaController {
 	}
 }
 
+func (mc *MediaController) Run() {
+	mc.Active.Add(1)
+	go mc.ReadHandler()
+	go mc.WriteHandler()
+	mc.Active.Wait()
+}
+
 func (mc *MediaController) Auth(payload messages.WebSocket) *messages.WebSocket {
 	helpers.Dump("Auth State")
 	helpers.Dump(payload)

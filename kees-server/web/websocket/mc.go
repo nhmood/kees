@@ -20,11 +20,7 @@ func MediaControllerV1(w http.ResponseWriter, r *http.Request) {
 
 	mediaController := mc.New(c)
 	helpers.Dump(mediaController)
+	mediaController.Run()
 
-	mediaController.Active.Add(1)
-	go mediaController.ReadHandler()
-	go mediaController.WriteHandler()
-
-	mediaController.Active.Wait()
 	helpers.Dump("Closing")
 }
