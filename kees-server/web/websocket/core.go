@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 
+	"kees-server/devices/broker"
 	"kees-server/helpers"
 	"kees-server/web/middlewares"
 	"kees-server/web/responses"
@@ -15,6 +16,7 @@ import (
 )
 
 var upgrader = websocket.Upgrader{}
+var connBroker *broker.Broker
 
 type AuthResponse struct {
 	Message string      `json:"message"`
@@ -27,7 +29,9 @@ type JWTResponse struct {
 	Token     string `json:"token"`
 }
 
-func Configure(router *mux.Router, path string) {
+func Configure(router *mux.Router, path string, broker *broker.Broker) {
+	connBroker = broker
+
 	ws := router.PathPrefix(path).Subrouter()
 	ws.Use(middlewares.AddJSONHeader)
 

@@ -18,7 +18,7 @@ func MediaControllerV1(w http.ResponseWriter, r *http.Request) {
 	}
 	defer c.Close()
 
-	mediaController := mc.New(c)
+	mediaController := mc.New(c, *connBroker)
 	helpers.Dump(mediaController)
 	mediaController.Run()
 

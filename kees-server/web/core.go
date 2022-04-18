@@ -7,6 +7,7 @@ import (
 
 	"kees-server/config"
 	"kees-server/constants"
+	"kees-server/devices/broker"
 	"kees-server/helpers"
 
 	"kees-server/web/api"
@@ -17,10 +18,15 @@ import (
 
 var handler http.Handler
 var serverConfig config.ServerConfig
+var connBroker *broker.Broker
 
 func Configure(c config.ServerConfig) {
 	log.Println("Configuring kees-server API")
 	serverConfig = c
+
+	connBroker = broker.New()
+	helpers.Dump(connBroker)
+	connBroker.Run()
 
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", Root)
@@ -28,8 +34,8 @@ func Configure(c config.ServerConfig) {
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir("web/static/")))
 	router.PathPrefix("/static").Handler(fs)
 
-	api.Configure(router, "/api")
-	websocket.Configure(router, "/ws")
+	api.Configure(router, "/api", connBroker)
+	websocket.Configure(router, "/ws", connBroker)
 
 	handler = middlewares.AddBaseHeaders(router)
 	handler = middlewares.AddLogging(handler)

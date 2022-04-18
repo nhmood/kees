@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/websocket"
 	"sync"
 
+	"kees-server/devices"
 	"kees-server/helpers"
 	"kees-server/messages"
 )
@@ -25,21 +26,31 @@ type MediaController struct {
 	Info    Info
 	Active  sync.WaitGroup
 	Conn    *websocket.Conn
+	Broker  devices.Broker
 	State   string
 	Outbox  chan messages.WebSocket
 	Control chan messages.WebSocket
 }
 
-func New(conn *websocket.Conn) *MediaController {
-	return &MediaController{
+func New(conn *websocket.Conn, broker devices.Broker) *MediaController {
+	mc := &MediaController{
 		Conn:    conn,
+		Broker:  broker,
 		State:   "auth",
 		Outbox:  make(chan messages.WebSocket, 256),
 		Control: make(chan messages.WebSocket, 128),
 	}
+
+	broker.Register(mc)
+	return mc
 }
 
 func (mc *MediaController) Run() {
+	defer func() {
+		mc.Conn.Close()
+		mc.Broker.Deregister(mc)
+	}()
+
 	mc.Active.Add(1)
 	go mc.ReadHandler()
 	go mc.WriteHandler()
@@ -107,6 +118,7 @@ func (mc *MediaController) ReadHandler() {
 }
 
 func (mc *MediaController) WriteHandler() {
+	// TODO: add ticket case for periodic heartbeat/status
 	for {
 		select {
 		// TODO: might want to move mc.Control to separate controlHandler(+goroutine)

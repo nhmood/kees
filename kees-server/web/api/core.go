@@ -4,12 +4,17 @@ import (
 	"github.com/gorilla/mux"
 	"net/http"
 
+	"kees-server/devices/broker"
 	"kees-server/helpers"
 	"kees-server/web/middlewares"
 	"kees-server/web/responses"
 )
 
-func Configure(router *mux.Router, path string) {
+var connBroker *broker.Broker
+
+func Configure(router *mux.Router, path string, broker *broker.Broker) {
+	connBroker = broker
+
 	api := router.PathPrefix(path).Subrouter()
 	api.HandleFunc("/", Root).Methods("GET")
 
