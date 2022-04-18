@@ -7,19 +7,19 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 
+	"kees-server/devices"
 	"kees-server/helpers"
 	"kees-server/web/middlewares"
 	"kees-server/web/responses"
-
-	"kees-server/devices/mc"
 )
 
 var upgrader = websocket.Upgrader{}
+var broker *devices.Broker
 
 type AuthResponse struct {
-	Message string      `json:"message"`
-	Device  mc.Info     `json:"device"`
-	JWT     JWTResponse `json:"jwt"`
+	Message string                      `json:"message"`
+	Device  devices.MediaControllerInfo `json:"device"`
+	JWT     JWTResponse                 `json:"jwt"`
 }
 
 type JWTResponse struct {
@@ -28,6 +28,8 @@ type JWTResponse struct {
 }
 
 func Configure(router *mux.Router, path string) {
+	broker = devices.NewBroker()
+
 	ws := router.PathPrefix(path).Subrouter()
 	ws.Use(middlewares.AddJSONHeader)
 
@@ -79,7 +81,7 @@ func WebsocketAuthV1(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	controllerInfo := mc.Info{}
+	controllerInfo := devices.MediaControllerInfo{}
 	id := uuid.New()
 	controllerInfo.ID = id.String()
 

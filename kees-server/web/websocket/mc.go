@@ -3,7 +3,6 @@ package websocket
 import (
 	"net/http"
 
-	"kees-server/devices/mc"
 	"kees-server/helpers"
 )
 
@@ -18,9 +17,7 @@ func MediaControllerV1(w http.ResponseWriter, r *http.Request) {
 	}
 	defer c.Close()
 
-	mediaController := mc.New(c)
-	helpers.Dump(mediaController)
+	mediaController := broker.RegisterMediaController(c)
+	helpers.Debug(mediaController)
 	mediaController.Run()
-
-	helpers.Dump("Closing")
 }
