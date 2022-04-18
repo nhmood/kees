@@ -26,6 +26,7 @@ func GenerateJWT(data map[string]string) (string, int64, error) {
 
 	// TODO: replace with function pointer to specific claim updater function
 	claims["kees"] = map[string]string{
+		"id":         data["id"],
 		"name":       data["name"],
 		"version":    data["version"],
 		"controller": data["controller"],

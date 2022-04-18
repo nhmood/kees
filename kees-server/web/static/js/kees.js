@@ -258,7 +258,8 @@ class KeesClient {
 
   badAuth(){
     let badauth = {
-      message: "auth",
+      state: "auth",
+      message: "this is a bad auth",
       token: "eatmyshorts"
     }
     this.event("ws", "auth", badauth);
@@ -268,7 +269,8 @@ class KeesClient {
 
   goodAuth(){
     let auth = {
-      message: "auth",
+      state: "auth",
+      message: "this is a good auth",
       data: {
         token: this.session.jwt.token
       }

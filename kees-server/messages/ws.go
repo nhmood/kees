@@ -1,6 +1,7 @@
 package messages
 
 type WebSocket struct {
-	Message string
-	Data    map[string]interface{}
+	State   string                 `json:"state"`
+	Message string                 `json:"message"`
+	Data    map[string]interface{} `json:"data"`
 }
