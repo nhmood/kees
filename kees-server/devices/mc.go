@@ -188,6 +188,7 @@ func (mc *MediaController) Auth(payload messages.WebSocket) *messages.WebSocket 
 		Data:    helpers.ToInterface(mc.Info),
 	}
 
+	mc.Broker.Register(mc)
 	mc.Outbox <- auth
 
 	return nil
