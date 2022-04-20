@@ -9,6 +9,11 @@ import (
 	"kees-server/web/responses"
 )
 
+type MCResponse struct {
+	devices.MediaControllerInfo
+	Capabilities []string `json:"capabilities"`
+}
+
 func DevicesV1(w http.ResponseWriter, r *http.Request) {
 	token := r.Header.Get("X-Kees-JWT-Token")
 	helpers.Debug(token)
@@ -30,9 +35,19 @@ func DevicesV1(w http.ResponseWriter, r *http.Request) {
 	}
 	helpers.Debug(jwt)
 
-	mcs := make([]*devices.MediaControllerInfo, 0)
+	mcs := make([]*MCResponse, 0)
 	for _, v := range broker.MediaControllers {
-		mcs = append(mcs, &v.Info)
+		// TODO: pull capabilities by device type from database
+		mcr := &MCResponse{MediaControllerInfo: v.Info, Capabilities: []string{
+			"play",
+			"stop",
+			"rewind",
+			"fast_forward",
+			"pause",
+			"shuffle",
+		}}
+
+		mcs = append(mcs, mcr)
 	}
 
 	data, err := helpers.Format(mcs)
