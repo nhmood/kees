@@ -46,17 +46,16 @@ func (b *Broker) Deregister(mc *MediaController) {
 }
 
 func (b *Broker) EventHandler() {
-
 	for {
 		select {
 		case mc, ok := <-b.mcRegister:
-			log.Info("Registration event for" + mc.Identifier)
+			log.Info("Registration event for " + mc.Identifier)
 			helpers.Debug(ok)
 			b.MediaControllers[mc.Info.ID] = mc
 			helpers.Debug(b)
 
 		case mc, ok := <-b.mcDeregister:
-			log.Info("Deregistration event for" + mc.Identifier)
+			log.Info("Deregistration event for " + mc.Identifier)
 			helpers.Debug(ok)
 			delete(b.MediaControllers, mc.Info.ID)
 			helpers.Debug(b)
