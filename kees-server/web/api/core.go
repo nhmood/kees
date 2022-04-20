@@ -4,14 +4,22 @@ import (
 	"github.com/gorilla/mux"
 	"net/http"
 
+	"kees-server/devices"
 	"kees-server/helpers"
+
 	"kees-server/web/middlewares"
 	"kees-server/web/responses"
 )
 
-func Configure(router *mux.Router, path string) {
+var broker *devices.Broker
+
+func Configure(router *mux.Router, path string, b *devices.Broker) {
+	broker = b
 	api := router.PathPrefix(path).Subrouter()
 	api.HandleFunc("/", Root).Methods("GET")
+	api.HandleFunc("/v1/auth", ClientAuthV1).Methods("POST")
+
+	api.HandleFunc("/v1/devices", DevicesV1).Methods("GET")
 
 	api.Use(middlewares.AddJSONHeader)
 }

@@ -27,8 +27,8 @@ type JWTResponse struct {
 	Token     string `json:"token"`
 }
 
-func Configure(router *mux.Router, path string) {
-	broker = devices.NewBroker()
+func Configure(router *mux.Router, path string, b *devices.Broker) {
+	broker = b
 
 	ws := router.PathPrefix(path).Subrouter()
 	ws.Use(middlewares.AddJSONHeader)

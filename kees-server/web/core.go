@@ -7,6 +7,7 @@ import (
 
 	"kees-server/config"
 	"kees-server/constants"
+	"kees-server/devices"
 	"kees-server/helpers"
 
 	"kees-server/web/api"
@@ -28,8 +29,11 @@ func Configure(c config.ServerConfig) {
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir("web/static/")))
 	router.PathPrefix("/static").Handler(fs)
 
-	api.Configure(router, "/api")
-	websocket.Configure(router, "/ws")
+	broker := devices.NewBroker()
+	broker.Run()
+
+	api.Configure(router, "/api", broker)
+	websocket.Configure(router, "/ws", broker)
 
 	handler = middlewares.AddBaseHeaders(router)
 	handler = middlewares.AddLogging(handler)
