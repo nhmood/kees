@@ -119,6 +119,7 @@ func (mc *MediaController) ReadHandler() {
 
 func (mc *MediaController) WriteHandler() {
 	// TODO: add ticket case for periodic heartbeat/status
+	//		 and to kick off unauthed wockets after timeout
 	for {
 		select {
 		// TODO: might want to move mc.Control to separate controlHandler(+goroutine)
