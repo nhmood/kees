@@ -199,3 +199,20 @@ func (mc *MediaController) Disconnect(message messages.WebSocket) {
 	mc.State = "disconnect"
 	mc.Control <- message
 }
+
+func (mc *MediaController) IssueCommand(command string) string {
+	id := uuid.New()
+	commandID := id.String()
+	message := messages.WebSocket{
+		State:   "command",
+		Message: "command issue for " + command,
+		Data: map[string]interface{}{
+			"command": command,
+			"id":      commandID,
+		},
+	}
+	helpers.Debug(message)
+
+	mc.Outbox <- message
+	return commandID
+}

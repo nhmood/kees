@@ -21,6 +21,7 @@ func Configure(router *mux.Router, path string, b *devices.Broker) {
 
 	api.HandleFunc("/v1/devices", DevicesV1).Methods("GET")
 	api.HandleFunc("/v1/devices/{device_id}", DeviceInfoV1).Methods("GET")
+	api.HandleFunc("/v1/devices/{device_id}/commands/{operation}", CommandIssueV1).Methods("POST")
 
 	api.Use(middlewares.AddJSONHeader)
 }
