@@ -33,6 +33,7 @@ func DevicesV1(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		data, err := helpers.Format(responses.Generic{
 			Message: "Invalid JWT",
+			Data:    map[string]interface{}{},
 		})
 
 		if err != nil {
