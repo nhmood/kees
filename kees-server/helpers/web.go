@@ -45,7 +45,7 @@ const (
 	QueryParam
 )
 
-func GetParam(r *http.Request, path string, location Location) int64 {
+func GetIntParam(r *http.Request, path string, location Location) int64 {
 	var param string
 	switch location {
 	case URLParam:
@@ -58,6 +58,20 @@ func GetParam(r *http.Request, path string, location Location) int64 {
 
 	paramID, _ := strconv.ParseInt(param, 10, 64)
 	return paramID
+}
+
+func GetStringParam(r *http.Request, path string, location Location) string {
+	var param string
+	switch location {
+	case URLParam:
+		vars := mux.Vars(r)
+		param = vars[path]
+	case QueryParam:
+		queryParams := r.URL.Query()
+		param = queryParams.Get(path)
+	}
+
+	return param
 }
 
 func ToInterface(data interface{}) map[string]interface{} {
