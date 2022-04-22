@@ -1,9 +1,10 @@
 package web
 
 import (
-	"github.com/gorilla/mux"
-	"log"
 	"net/http"
+
+	"github.com/Masterminds/log-go"
+	"github.com/gorilla/mux"
 
 	"kees-server/config"
 	"kees-server/constants"
@@ -20,7 +21,7 @@ var handler http.Handler
 var serverConfig config.ServerConfig
 
 func Configure(c config.ServerConfig) {
-	log.Println("Configuring kees-server API")
+	log.Info("Configuring kees-server API")
 	serverConfig = c
 
 	router := mux.NewRouter().StrictSlash(true)
@@ -58,6 +59,6 @@ func Root(w http.ResponseWriter, r *http.Request) {
 }
 
 func Run() {
-	log.Print("Starting Server on:" + serverConfig.Port)
+	log.Info("Starting Server on:" + serverConfig.Port)
 	log.Fatal(http.ListenAndServe(":"+serverConfig.Port, handler))
 }

@@ -1,9 +1,11 @@
 package config
 
 import (
-	"gopkg.in/yaml.v2"
-	"log"
+	"fmt"
 	"os"
+
+	"github.com/Masterminds/log-go"
+	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
@@ -18,7 +20,8 @@ func ReadConfig(filename string) (*Config, error) {
 
 	file, err := os.Open(filename)
 	if err != nil {
-		log.Printf("Failed to open %s", filename)
+		str := fmt.Sprintf("Failed to open %s", filename)
+		log.Error(str)
 		return config, err
 	}
 	defer file.Close()

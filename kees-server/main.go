@@ -1,8 +1,7 @@
 package main
 
 import (
-	"fmt"
-	"log"
+	"github.com/Masterminds/log-go"
 	"os"
 
 	"kees-server/config"
@@ -17,7 +16,7 @@ func main() {
 	configPath := os.Getenv("KEES_CONFIG")
 	Configuration, err := config.ReadConfig(configPath)
 	if err != nil {
-		log.Print("Failed to read config yaml from KEES_CONFIG -> ", configPath)
+		log.Error("Failed to read config yaml from KEES_CONFIG -> ", configPath)
 		log.Panic(err)
 		os.Exit(1)
 	}
@@ -32,11 +31,11 @@ func main() {
 }
 
 func info() {
-	log.Print("kees v0.0.1")
+	log.Info("kees v0.0.1")
 }
 
 func help() {
 	info()
 
-	fmt.Println(``)
+	log.Info(``)
 }

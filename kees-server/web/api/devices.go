@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/Masterminds/log-go"
 	"net/http"
 
 	"kees-server/devices"
