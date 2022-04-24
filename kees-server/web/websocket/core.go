@@ -35,9 +35,12 @@ func Configure(router *mux.Router, path string, b *devices.Broker) {
 
 	ws.HandleFunc("/", WebsocketInfo).Methods("GET")
 	ws.HandleFunc("/v1/auth", WebsocketAuthV1).Methods("POST")
-	ws.HandleFunc("/v1/auth/check", WebsocketAuthCheckV1).Methods("GET")
-
 	ws.HandleFunc("/v1/mc", MediaControllerV1).Methods("GET")
+
+	// Create new subrouter so we can wrap the JWT middleware around it
+	wsAuth := ws.PathPrefix("/").Subrouter()
+	wsAuth.Use(middlewares.ValidateJWT)
+	wsAuth.HandleFunc("/v1/auth/check", WebsocketAuthCheckV1).Methods("GET")
 }
 
 func WebsocketInfo(w http.ResponseWriter, r *http.Request) {
@@ -125,24 +128,8 @@ func WebsocketAuthV1(w http.ResponseWriter, r *http.Request) {
 }
 
 func WebsocketAuthCheckV1(w http.ResponseWriter, r *http.Request) {
-	token := r.Header.Get("X-Kees-JWT-Token")
-	helpers.Debug(token)
-
-	jwt, err := helpers.ValidateJWT(token)
-	if err != nil {
-		data, err := helpers.Format(responses.Generic{
-			Message: "Invalid JWT",
-		})
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(data)
-		return
-	}
+	jwt := r.Context().Value("jwt").(map[string]interface{})
+	helpers.Debug(jwt)
 
 	data, err := helpers.Format(jwt)
 	if err != nil {

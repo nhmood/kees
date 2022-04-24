@@ -1,8 +1,9 @@
 package api
 
 import (
-	"github.com/Masterminds/log-go"
 	"net/http"
+
+	"github.com/Masterminds/log-go"
 
 	"kees-server/devices"
 	"kees-server/helpers"
@@ -26,25 +27,7 @@ type Command struct {
 }
 
 func DevicesV1(w http.ResponseWriter, r *http.Request) {
-	token := r.Header.Get("X-Kees-JWT-Token")
-	helpers.Debug(token)
-
-	jwt, err := helpers.ValidateJWT(token)
-	if err != nil {
-		data, err := helpers.Format(responses.Generic{
-			Message: "Invalid JWT",
-			Data:    map[string]interface{}{},
-		})
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(data)
-		return
-	}
+	jwt := r.Context().Value("jwt").(map[string]interface{})
 	helpers.Debug(jwt)
 
 	mcs := make([]*MCResponse, 0)
@@ -73,24 +56,7 @@ func DevicesV1(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeviceInfoV1(w http.ResponseWriter, r *http.Request) {
-	token := r.Header.Get("X-Kees-JWT-Token")
-	helpers.Debug(token)
-
-	jwt, err := helpers.ValidateJWT(token)
-	if err != nil {
-		data, err := helpers.Format(responses.Generic{
-			Message: "Invalid JWT",
-		})
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(data)
-		return
-	}
+	jwt := r.Context().Value("jwt").(map[string]interface{})
 	helpers.Debug(jwt)
 
 	// TODO: add database lookup along with broker lookup
