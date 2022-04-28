@@ -1,0 +1,30 @@
+#!/bin/bash
+
+
+export GIT_COMMIT=$(git rev-list -1 HEAD)
+export KEES_CONFIG="./kees.yml"
+
+
+case $1 in
+  build)
+    gofmt -w .
+    go build -ldflags "-X kees-client/constants.GitCommit=$GIT_COMMIT"
+    ;;
+
+  run)
+    ./kees-client
+    ;;
+
+  again)
+    ./k build
+    if [ $? -ne 0 ]; then
+      echo "Build failed"
+      exit 1
+    fi
+    ./k run
+    ;;
+
+  *)
+    echo "Unrecognized kees Command"
+    ;;
+esac
