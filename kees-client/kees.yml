@@ -4,8 +4,8 @@ logging:
 server:
   host: "atlas.goosecode.com"
   port: "1935"
-  token: "cdplayer"
 device:
+  token: "cdplayer"
   name: "stereo-rpi"
   version: "v0.0.1"
   controller: "sony-cdp291"
