@@ -77,23 +77,3 @@ func (c *Client) Run() {
 func (c *Client) baseURL(scheme string) string {
 	return scheme + "://" + c.Server.Host + ":" + c.Server.Port
 }
-
-func (c *Client) getAuthURL() string {
-	return c.baseURL("http") + "/ws/v1/auth"
-}
-
-func (c *Client) getWSURL() string {
-	return c.baseURL("ws") + "/ws/v1/mc"
-}
-
-func (c *Client) EstablishWebSocket() *websocket.Conn {
-	log.Info("Establishing websocket to: ", c.getWSURL())
-	conn, _, err := websocket.DefaultDialer.Dial(c.getWSURL(), nil)
-	if err != nil {
-		log.Fatal("Failed to establish websocket to:", c.getWSURL(), err)
-	}
-	defer conn.Close()
-	log.Info("Successfully established websocket")
-
-	return conn
-}

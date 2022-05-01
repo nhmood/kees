@@ -12,6 +12,10 @@ import (
 	"kees-client/helpers"
 )
 
+func (c *Client) getAuthURL() string {
+	return c.baseURL("http") + "/ws/v1/auth"
+}
+
 func (c *Client) Authenticate() *AuthResponse {
 	log.Info("Authenticating " + c.Device.Name)
 	jsonData, err := helpers.Format(c.Device)
