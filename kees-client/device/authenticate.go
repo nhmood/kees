@@ -22,7 +22,7 @@ func (c *Client) Authenticate() {
 
 	request, err := http.NewRequest(
 		http.MethodPost,
-		c.getAuthURL("http"),
+		c.getAuthURL(),
 		bytes.NewBuffer(jsonData),
 	)
 	request.Header.Set("User-Agent", "kees-client/"+constants.Version)
@@ -30,7 +30,7 @@ func (c *Client) Authenticate() {
 	request.Header.Set("X-Kees-MC-Token", c.Token)
 
 	httpClient := http.Client{Timeout: time.Duration(5 * time.Second)}
-	log.Info("Making request for: " + c.getAuthURL("http"))
+	log.Info("Making request for: " + c.getAuthURL())
 	resp, err := httpClient.Do(request)
 
 	if err != nil {

@@ -65,6 +65,7 @@ func (c *Client) Run() {
 	helpers.Debug(c)
 	// TODO: potentially store JWT on disk and only authenticate
 	//		 if expiration has passed
+	//		 can use the /v1/auth/check endpoint to validate JWT
 	c.Authenticate()
 
 }
@@ -73,6 +74,10 @@ func (c *Client) baseURL(scheme string) string {
 	return scheme + "://" + c.Server.Host + ":" + c.Server.Port
 }
 
-func (c *Client) getAuthURL(scheme string) string {
-	return c.baseURL(scheme) + "/ws/v1/auth"
+func (c *Client) getAuthURL() string {
+	return c.baseURL("http") + "/ws/v1/auth"
+}
+
+func (c *Client) getWSURL() string {
+	return c.baseURL("ws") + "/ws/v1/mc"
 }
