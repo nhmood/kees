@@ -2,7 +2,14 @@ package helpers
 
 import (
 	"encoding/json"
+	"net/http"
 )
+
+func Parse(r *http.Response, data interface{}) error {
+	a := json.NewDecoder(r.Body)
+	a.Decode(data)
+	return nil
+}
 
 func Format(data interface{}) ([]byte, error) {
 	output, err := json.Marshal(data)

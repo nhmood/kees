@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"kees-client/config"
+	"kees-client/device"
 	"kees-client/helpers"
 )
 
@@ -19,6 +20,9 @@ func main() {
 	}
 
 	helpers.Configure(Configuration)
+
+	client := device.NewClient(Configuration)
+	client.Run()
 }
 
 func info() {
