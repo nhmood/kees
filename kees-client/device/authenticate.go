@@ -12,7 +12,7 @@ import (
 	"kees-client/helpers"
 )
 
-func (c *Client) Authenticate() {
+func (c *Client) Authenticate() *AuthResponse {
 	log.Info("Authenticating " + c.Device.Name)
 	jsonData, err := helpers.Format(c.Device)
 	if err != nil {
@@ -39,12 +39,12 @@ func (c *Client) Authenticate() {
 		os.Exit(1)
 	}
 
+	// TODO: add handling of non200 response
 	authResp := AuthResponse{}
 	helpers.Parse(resp, &authResp)
 	helpers.Debug(authResp)
 
-	c.Device = authResp.Device
-	c.Auth = authResp.JWT
+	log.Info("Authentication successful - DeviceID:" + authResp.Device.ID)
 
-	log.Info("Authentication successful - DeviceID:" + c.Device.ID)
+	return &authResp
 }
