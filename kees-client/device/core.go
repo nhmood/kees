@@ -67,7 +67,7 @@ func (c *Client) Run() {
 	//		 if expiration has passed
 	//		 can use the /v1/auth/check endpoint to validate JWT
 	c.Authenticate()
-
+	c.EstablishWebSocket()
 }
 
 func (c *Client) baseURL(scheme string) string {
@@ -80,4 +80,16 @@ func (c *Client) getAuthURL() string {
 
 func (c *Client) getWSURL() string {
 	return c.baseURL("ws") + "/ws/v1/mc"
+}
+
+func (c *Client) EstablishWebSocket() {
+	log.Info("Establishing websocket to: ", c.getWSURL())
+	conn, _, err := websocket.DefaultDialer.Dial(c.getWSURL(), nil)
+	if err != nil {
+		log.Fatal("Failed to establish websocket to:", c.getWSURL(), err)
+	}
+	defer conn.Close()
+
+	log.Info("Successfully established websocket")
+	c.Conn = conn
 }
