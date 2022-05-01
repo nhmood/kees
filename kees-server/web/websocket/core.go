@@ -85,14 +85,16 @@ func WebsocketAuthV1(w http.ResponseWriter, r *http.Request) {
 	}
 
 	controllerInfo := devices.MediaControllerInfo{}
-	id := uuid.New()
-	controllerInfo.ID = id.String()
-
 	err := helpers.Parse(r, &controllerInfo)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	// assign ID after we parse in case client provides an empty ID field and we
+	// accidentally override it with an empty value in the MediaControllerInfo struct
+	id := uuid.New()
+	controllerInfo.ID = id.String()
 
 	helpers.Debug(controllerInfo)
 	jwt, expiresIn, err := helpers.GenerateJWT(map[string]string{
@@ -110,7 +112,7 @@ func WebsocketAuthV1(w http.ResponseWriter, r *http.Request) {
 	helpers.Debug(jwt)
 
 	jwtResponse := AuthResponse{
-		Message: "successfully authd" + controllerInfo.Name,
+		Message: "successfully authd " + controllerInfo.Name,
 		Device:  controllerInfo,
 		JWT: JWTResponse{
 			ExpiresIn: expiresIn,
