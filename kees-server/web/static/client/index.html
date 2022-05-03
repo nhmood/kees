@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>kees controller</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" integrity="sha512-EZLkOqwILORob+p0BXZc+Vm3RgJBOe1Iq/0fiI7r/wJgzOFZMlsqTa29UEl6v6U6gsV4uIpsNZoV32YZqrCRCQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💿</text></svg>">
+
+    <link rel="stylesheet" href="/static/css/kees.css" />
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>kees controller</h1>
+
+      <div class="row main">
+        <div class="user six columns">
+          <form class="details">
+            <label for="name">username</label>
+            <input type="text" id="username" value="kees"><br>
+            <label for="password">password</label>
+            <input type="password" id="password" value="cdplayer"><br>
+            <label for="client">client</label>
+            <input type="text" id="client" value="web client"><br>
+          </form><!-- auth -->
+
+          <button hook="auth">auth</button>
+          <button hook="reset" class="hide">reset</button>
+        </div><!-- device -->
+
+        <div class="info six columns">
+          <div class="row getDevices hide">
+            <button hook="getDevices">get devices</button>
+            <i class="hide"></i>
+          </div>
+
+          <hr>
+
+
+          <div class="row devices hide">
+            <h3>device list</h3>
+            <div class="row deviceList"></div>
+          </div>
+
+          <div class="row wsActions hide">
+            <button hook="goodAuth">send good auth</button>
+            <button hook="badAuth">send bad auth</button>
+          </div>
+        </div><!-- info -->
+      </div><!-- main -->
+
+      <hr>
+
+      <div class="row ws">
+        <h2>logs</h2>
+        <div class="row logs">
+        </div>
+      </div><!-- ws -->
+    </div>
+  </body>
+
+  <script src="/static/js/client.js"></script>
+</html>

@@ -32,3 +32,13 @@ i {
   text-transform: uppercase;
   font-weight: 800;
 }
+
+
+.device {
+  border-bottom: 1px solid #efefef;
+}
+
+.device .name {
+  font-size: 20px;
+  font-weight: 800;
+}

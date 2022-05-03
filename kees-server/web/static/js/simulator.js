@@ -1,6 +1,6 @@
-console.log('kees websocket test client v0.0.1');
+console.log('kees websocket client simulator v0.0.1');
 
-class KeesClient {
+class KeesClientSimulator {
   constructor(){
     this.session = undefined;
     this.ws = undefined;
@@ -283,4 +283,4 @@ class KeesClient {
 
 }
 
-var k = new KeesClient
+var k = new KeesClientSimulator
