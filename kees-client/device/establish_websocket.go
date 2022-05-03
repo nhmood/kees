@@ -5,11 +5,11 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func (c *Client) getWSURL() string {
+func (c *MediaController) getWSURL() string {
 	return c.baseURL("ws") + "/ws/v1/mc"
 }
 
-func (c *Client) EstablishWebSocket() *websocket.Conn {
+func (c *MediaController) EstablishWebSocket() *websocket.Conn {
 	log.Info("Establishing websocket to: ", c.getWSURL())
 	conn, _, err := websocket.DefaultDialer.Dial(c.getWSURL(), nil)
 	if err != nil {

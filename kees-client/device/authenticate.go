@@ -8,15 +8,15 @@ import (
 
 	"github.com/Masterminds/log-go"
 
-	"kees-client/constants"
-	"kees-client/helpers"
+	"kees/media-controller/constants"
+	"kees/media-controller/helpers"
 )
 
-func (c *Client) getAuthURL() string {
+func (c *MediaController) getAuthURL() string {
 	return c.baseURL("http") + "/ws/v1/auth"
 }
 
-func (c *Client) Authenticate() *AuthResponse {
+func (c *MediaController) Authenticate() *AuthResponse {
 	log.Info("Authenticating " + c.Device.Name)
 	jsonData, err := helpers.Format(c.Device)
 	if err != nil {
@@ -29,7 +29,7 @@ func (c *Client) Authenticate() *AuthResponse {
 		c.getAuthURL(),
 		bytes.NewBuffer(jsonData),
 	)
-	request.Header.Set("User-Agent", "kees-client/"+constants.Version)
+	request.Header.Set("User-Agent", "kees/media-controller/"+constants.Version)
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("X-Kees-MC-Token", c.Token)
 

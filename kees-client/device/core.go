@@ -8,12 +8,12 @@ import (
 	"github.com/Masterminds/log-go"
 	"github.com/gorilla/websocket"
 
-	"kees-client/config"
-	"kees-client/helpers"
-	"kees-client/messages"
+	"kees/media-controller/config"
+	"kees/media-controller/helpers"
+	"kees/media-controller/messages"
 )
 
-type Client struct {
+type MediaController struct {
 	Server  config.ServerConfig `json:"server"`
 	Device  Device              `json:"device"`
 	Token   string              `json:"token"`
@@ -43,13 +43,13 @@ type AuthResponse struct {
 	JWT     JWT    `json:"jwt"`
 }
 
-func NewClient(config *config.Config) *Client {
+func NewMediaController(config *config.Config) *MediaController {
 	// TODO: add custom logger on instantiation and avoid
 	//       having to call c.identify on all strings
 
-	log.Info("Creating client for " + config.Device.Name + "/" + config.Device.Version + "/" + config.Device.Controller)
+	log.Info("Creating media controller for " + config.Device.Name + "/" + config.Device.Version + "/" + config.Device.Controller)
 
-	return &Client{
+	return &MediaController{
 		Server: config.Server,
 		Device: Device{
 			Name:       config.Device.Name,
@@ -63,11 +63,11 @@ func NewClient(config *config.Config) *Client {
 	}
 }
 
-func (c *Client) baseURL(scheme string) string {
+func (c *MediaController) baseURL(scheme string) string {
 	return scheme + "://" + c.Server.Host + ":" + c.Server.Port
 }
 
-func (c *Client) Run() {
+func (c *MediaController) Run() {
 	defer func() {
 		log.Info("Session ended")
 		c.Conn.Close()
@@ -94,12 +94,12 @@ func (c *Client) Run() {
 	c.Active.Wait()
 }
 
-func (c *Client) Disconnect(message messages.WebSocket) {
+func (c *MediaController) Disconnect(message messages.WebSocket) {
 	c.State = "disconnect"
 	c.Control <- message
 }
 
-func (c *Client) WebSocketAuth() {
+func (c *MediaController) WebSocketAuth() {
 	data := messages.WebSocket{
 		State:   "auth",
 		Message: "Authenticating " + c.Device.Name,
@@ -108,11 +108,11 @@ func (c *Client) WebSocketAuth() {
 		},
 	}
 
-	helpers.Dump(data)
+	helpers.Debug(data)
 	c.Outbox <- data
 }
 
-func (c *Client) ReadHandler() {
+func (c *MediaController) ReadHandler() {
 	for {
 		payload := messages.WebSocket{}
 		err := c.Conn.ReadJSON(&payload)
@@ -128,17 +128,17 @@ func (c *Client) ReadHandler() {
 			break
 		}
 
-		helpers.Dump(payload)
+		helpers.Debug(payload)
 
 		msg := payload.State + " - " + payload.Message
 		log.Info(msg)
 
 		state := payload.State
-		helpers.Dump(state)
+		helpers.Debug(state)
 	}
 }
 
-func (c *Client) WriteHandler() {
+func (c *MediaController) WriteHandler() {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 

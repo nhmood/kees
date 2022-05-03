@@ -3,7 +3,7 @@ package helpers
 import (
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
-	"kees-client/config"
+	"kees/media-controller/config"
 	"runtime"
 )
 

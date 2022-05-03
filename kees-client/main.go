@@ -4,9 +4,9 @@ import (
 	"github.com/Masterminds/log-go"
 	"os"
 
-	"kees-client/config"
-	"kees-client/device"
-	"kees-client/helpers"
+	"kees/media-controller/config"
+	"kees/media-controller/device"
+	"kees/media-controller/helpers"
 )
 
 func main() {
@@ -21,12 +21,12 @@ func main() {
 
 	helpers.Configure(Configuration)
 
-	client := device.NewClient(Configuration)
+	client := device.NewMediaController(Configuration)
 	client.Run()
 }
 
 func info() {
-	log.Info("kees client v0.0.1")
+	log.Info("kees media-controller v0.0.1")
 }
 
 func help() {
