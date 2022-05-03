@@ -1,6 +1,8 @@
 package device
 
 import (
+	"os"
+	"os/signal"
 	"sync"
 
 	"github.com/Masterminds/log-go"
@@ -43,7 +45,7 @@ type AuthResponse struct {
 
 func NewClient(config *config.Config) *Client {
 	// TODO: add custom logger on instantiation and avoid
-	//       having to call mc.identify on all strings
+	//       having to call c.identify on all strings
 
 	log.Info("Creating client for " + config.Device.Name + "/" + config.Device.Version + "/" + config.Device.Controller)
 
@@ -59,6 +61,10 @@ func NewClient(config *config.Config) *Client {
 		Outbox:  make(chan messages.WebSocket, 256),
 		Control: make(chan messages.WebSocket, 128),
 	}
+}
+
+func (c *Client) baseURL(scheme string) string {
+	return scheme + "://" + c.Server.Host + ":" + c.Server.Port
 }
 
 func (c *Client) Run() {
@@ -77,8 +83,101 @@ func (c *Client) Run() {
 
 	conn := c.EstablishWebSocket()
 	c.Conn = conn
+
+	log.Info("Starting websocket handlers")
+
+	c.Active.Add(1)
+	go c.ReadHandler()
+	go c.WriteHandler()
+
+	c.WebSocketAuth()
+	c.Active.Wait()
 }
 
-func (c *Client) baseURL(scheme string) string {
-	return scheme + "://" + c.Server.Host + ":" + c.Server.Port
+func (c *Client) Disconnect(message messages.WebSocket) {
+	c.State = "disconnect"
+	c.Control <- message
+}
+
+func (c *Client) WebSocketAuth() {
+	data := messages.WebSocket{
+		State:   "auth",
+		Message: "Authenticating " + c.Device.Name,
+		Data: map[string]interface{}{
+			"token": c.Auth.Token,
+		},
+	}
+
+	helpers.Dump(data)
+	c.Outbox <- data
+}
+
+func (c *Client) ReadHandler() {
+	for {
+		payload := messages.WebSocket{}
+		err := c.Conn.ReadJSON(&payload)
+		if err != nil {
+			helpers.Dump(err)
+			data := messages.WebSocket{
+				State:   "error",
+				Message: "Invalid JSON Payload",
+				Data:    map[string]interface{}{},
+			}
+
+			c.Disconnect(data)
+			break
+		}
+
+		helpers.Dump(payload)
+
+		msg := payload.State + " - " + payload.Message
+		log.Info(msg)
+
+		state := payload.State
+		helpers.Dump(state)
+	}
+}
+
+func (c *Client) WriteHandler() {
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt)
+
+	for {
+		select {
+		case <-interrupt:
+			data := messages.WebSocket{
+				State:   "error",
+				Message: "Application Close",
+				Data:    map[string]interface{}{},
+			}
+
+			c.Disconnect(data)
+
+		// TODO: might want to move c.Control to separate controlHandler(+goroutine)
+		//       and signal to writeHandler separately
+		case disconnect, ok := <-c.Control:
+			helpers.Debug(ok)
+			helpers.Debug(disconnect)
+
+			// TODO: do i need SetWriteDeadline here?
+			err := c.Conn.WriteJSON(disconnect)
+			if err != nil {
+				log.Error("WebSocket Control WriteJSON failed")
+				helpers.Dump(err)
+			}
+			c.Active.Done()
+			return
+
+		case message, ok := <-c.Outbox:
+			helpers.Debug(ok)
+			helpers.Debug(message)
+
+			// TODO: do i need SetWriteDeadline here?
+			err := c.Conn.WriteJSON(message)
+			if err != nil {
+				log.Error("WebSocket Outbox WriteJSON failed")
+				helpers.Dump(err)
+			}
+		}
+	}
 }
