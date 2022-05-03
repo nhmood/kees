@@ -15,7 +15,6 @@ func (c *Client) EstablishWebSocket() *websocket.Conn {
 	if err != nil {
 		log.Fatal("Failed to establish websocket to:", c.getWSURL(), err)
 	}
-	defer conn.Close()
 	log.Info("Successfully established websocket")
 
 	return conn

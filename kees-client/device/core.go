@@ -62,6 +62,11 @@ func NewClient(config *config.Config) *Client {
 }
 
 func (c *Client) Run() {
+	defer func() {
+		log.Info("Session ended")
+		c.Conn.Close()
+	}()
+
 	helpers.Debug(c)
 	// TODO: potentially store JWT on disk and only authenticate
 	//		 if expiration has passed
