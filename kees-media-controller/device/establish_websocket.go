@@ -1,8 +1,12 @@
 package device
 
 import (
+	"net/http"
+
 	"github.com/Masterminds/log-go"
 	"github.com/gorilla/websocket"
+
+	"kees/media-controller/constants"
 )
 
 func (c *MediaController) getWSURL() string {
@@ -11,7 +15,11 @@ func (c *MediaController) getWSURL() string {
 
 func (c *MediaController) EstablishWebSocket() *websocket.Conn {
 	log.Info("Establishing websocket to: ", c.getWSURL())
-	conn, _, err := websocket.DefaultDialer.Dial(c.getWSURL(), nil)
+
+	headers := make(http.Header)
+	headers.Add("User-Agent", "kees/media-controller/"+constants.Version)
+
+	conn, _, err := websocket.DefaultDialer.Dial(c.getWSURL(), headers)
 	if err != nil {
 		log.Fatal("Failed to establish websocket to:", c.getWSURL(), err)
 	}
