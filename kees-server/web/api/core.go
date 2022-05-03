@@ -4,11 +4,11 @@ import (
 	"github.com/gorilla/mux"
 	"net/http"
 
-	"kees-server/devices"
-	"kees-server/helpers"
+	"kees/server/devices"
+	"kees/server/helpers"
 
-	"kees-server/web/middlewares"
-	"kees-server/web/responses"
+	"kees/server/web/middlewares"
+	"kees/server/web/responses"
 )
 
 var broker *devices.Broker

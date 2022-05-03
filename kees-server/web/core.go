@@ -6,15 +6,15 @@ import (
 	"github.com/Masterminds/log-go"
 	"github.com/gorilla/mux"
 
-	"kees-server/config"
-	"kees-server/constants"
-	"kees-server/devices"
-	"kees-server/helpers"
+	"kees/server/config"
+	"kees/server/constants"
+	"kees/server/devices"
+	"kees/server/helpers"
 
-	"kees-server/web/api"
-	"kees-server/web/middlewares"
-	"kees-server/web/responses"
-	"kees-server/web/websocket"
+	"kees/server/web/api"
+	"kees/server/web/middlewares"
+	"kees/server/web/responses"
+	"kees/server/web/websocket"
 )
 
 var handler http.Handler

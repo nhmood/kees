@@ -8,7 +8,7 @@ export KEES_CONFIG="./kees.yml"
 case $1 in
   build)
     gofmt -w .
-    go build -ldflags "-X kees-server/constants.GitCommit=$GIT_COMMIT"
+    go build -ldflags "-X kees/server/constants.GitCommit=$GIT_COMMIT"
     ;;
 
   migration)
@@ -24,7 +24,7 @@ case $1 in
     ;;
 
   run)
-    ./kees-server
+    ./server
     ;;
 
   again)

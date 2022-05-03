@@ -4,11 +4,11 @@ import (
 	"github.com/Masterminds/log-go"
 	"os"
 
-	"kees-server/config"
-	"kees-server/helpers"
-	"kees-server/models"
+	"kees/server/config"
+	"kees/server/helpers"
+	"kees/server/models"
 
-	"kees-server/web"
+	"kees/server/web"
 )
 
 func main() {

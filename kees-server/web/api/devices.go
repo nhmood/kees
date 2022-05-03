@@ -5,16 +5,21 @@ import (
 
 	"github.com/Masterminds/log-go"
 
-	"kees-server/devices"
-	"kees-server/helpers"
+	"kees/server/devices"
+	"kees/server/helpers"
 
-	"kees-server/web/responses"
+	"kees/server/web/responses"
 )
 
 type MCResponse struct {
 	devices.MediaControllerInfo
 	Capabilities []string `json:"capabilities"`
 }
+
+//type CommandResponse struct {
+//	Device   MCResponse               `json:"device"`
+//	Commands []map[string]interface{} `json:"commands"`
+//}
 
 type CommandResponse struct {
 	Device  MCResponse `json:"device"`

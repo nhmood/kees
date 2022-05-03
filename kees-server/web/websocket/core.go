@@ -7,10 +7,10 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 
-	"kees-server/devices"
-	"kees-server/helpers"
-	"kees-server/web/middlewares"
-	"kees-server/web/responses"
+	"kees/server/devices"
+	"kees/server/helpers"
+	"kees/server/web/middlewares"
+	"kees/server/web/responses"
 )
 
 var upgrader = websocket.Upgrader{}

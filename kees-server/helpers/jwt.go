@@ -5,7 +5,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"time"
 
-	"kees-server/config"
+	"kees/server/config"
 )
 
 var jwtConfiguration config.JWTConfig

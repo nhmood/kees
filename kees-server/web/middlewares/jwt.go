@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"kees-server/helpers"
-	"kees-server/web/responses"
+	"kees/server/helpers"
+	"kees/server/web/responses"
 )
 
 func ValidateJWT(next http.Handler) http.Handler {

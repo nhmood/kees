@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"kees-server/constants"
+	"kees/server/constants"
 	"net/http"
 )
 

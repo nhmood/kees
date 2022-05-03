@@ -3,8 +3,8 @@ package websocket
 import (
 	"net/http"
 
-	"kees-server/devices"
-	"kees-server/helpers"
+	"kees/server/devices"
+	"kees/server/helpers"
 )
 
 func MediaControllerV1(w http.ResponseWriter, r *http.Request) {

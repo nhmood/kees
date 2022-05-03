@@ -3,8 +3,8 @@ package api
 import (
 	"net/http"
 
-	"kees-server/helpers"
-	"kees-server/web/responses"
+	"kees/server/helpers"
+	"kees/server/web/responses"
 )
 
 type ClientCredentials struct {

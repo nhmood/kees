@@ -1,7 +1,7 @@
 package helpers
 
 import (
-	"kees-server/config"
+	"kees/server/config"
 )
 
 // TODO: add proper error returns to ConfigureX helpers

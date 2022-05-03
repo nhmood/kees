@@ -7,8 +7,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 
-	"kees-server/helpers"
-	"kees-server/messages"
+	"kees/server/helpers"
+	"kees/server/messages"
 )
 
 type MediaController struct {

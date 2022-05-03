@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
 
-	"kees-server/config"
-	"kees-server/helpers"
+	"kees/server/config"
+	"kees/server/helpers"
 )
 
 var DB *sql.DB

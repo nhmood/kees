@@ -4,7 +4,7 @@ import (
 	"github.com/Masterminds/log-go"
 	"github.com/gorilla/websocket"
 
-	"kees-server/helpers"
+	"kees/server/helpers"
 )
 
 type Broker struct {
