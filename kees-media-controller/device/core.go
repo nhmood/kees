@@ -122,15 +122,12 @@ func (c *MediaController) StartHandlers() {
 func (c *MediaController) Teardown() {
 	c.State = "teardown"
 	log.Info("Tearing down MediaController")
+
 	// ReadHandler doesn't register a handler because Conn.ReadJSON
 	// is blocking and doesn't support a select/chan interface
 	// we need to just close the Conn for it to terminate
-	log.Info("Closing websocket connection")
-	c.Conn.Close()
-
 	// for everything else with a handler, push a terminate message
 	// down on the registered handler chan
-
 	for handler, terminateChan := range c.Handlers {
 		log.Info("Pushing terminate to " + handler)
 		terminateChan <- true

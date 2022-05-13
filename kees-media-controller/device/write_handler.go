@@ -23,6 +23,7 @@ func (c *MediaController) WriteHandler() {
 				log.Error("WebSocket Control WriteJSON failed")
 				helpers.Dump(err)
 			}
+			log.Info("Terminating Write Handler")
 			return
 
 		case message, ok := <-c.Outbox:

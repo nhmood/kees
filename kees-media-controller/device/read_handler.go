@@ -17,6 +17,13 @@ func (c *MediaController) ReadHandler() {
 		payload := messages.WebSocket{}
 		err := c.Conn.ReadJSON(&payload)
 
+		// ReadHandler doesn't register a standard terminate handler
+		// because Conn.ReadJSON is blocking and doesn't support a select/chan interface
+		// if we get a message but we are in the teardown state, exit
+		if c.State == "teardown" {
+			return
+		}
+
 		if err != nil {
 			log.Error(err)
 
