@@ -31,8 +31,6 @@ func (c *MediaController) ReadHandler() {
 		}
 
 		helpers.Debug(payload)
-		msg := payload.State + " - " + payload.Message
-		log.Info(msg)
 
 		state := payload.State
 		helpers.Debug(state)

@@ -17,7 +17,6 @@ func (c *MediaController) getAuthURL() string {
 }
 
 func (c *MediaController) Authenticate() *AuthResponse {
-	log.Info("Authenticating " + c.Device.Name)
 	jsonData, err := helpers.Format(c.Device)
 	if err != nil {
 		log.Warn("Failed to format Device info")

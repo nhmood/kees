@@ -7,7 +7,18 @@ import (
 	"github.com/Masterminds/log-go"
 
 	"kees/media-controller/helpers"
+	"kees/media-controller/messages"
 )
+
+type StateHandler func(*MediaController, *messages.WebSocket) *messages.WebSocket
+
+var ControlStates = map[string]StateHandler{
+	"auth": (*MediaController).WebSocketAuth,
+}
+
+var InboxStates = map[string]StateHandler{
+	"auth": (*MediaController).WebSocketAuthAck,
+}
 
 func (c *MediaController) ControlHandler() {
 	defer c.Active.Done()
@@ -24,11 +35,48 @@ func (c *MediaController) ControlHandler() {
 		select {
 		case state := <-c.Control:
 			// TODO: add state delegator to actually perform actions
-			log.Info("Got control command for ", state)
+			log.Info("CONTROL: ", state)
+			stateFunc := ControlStates[state]
+			if stateFunc == nil {
+				log.Error("Unknown control command ", state)
+				err := formatMessage("error", "Unknown control command", nil)
+				// TODO: add optional err to Teardown()
+				c.Outbox <- err
+				c.Teardown()
+				break
+			}
+
+			stateError := stateFunc(c, nil)
+			if stateError != nil {
+				log.Error("State Handling failed for ", state)
+				// TODO: add optional err to Teardown()
+				c.Outbox <- *stateError
+				c.Teardown()
+				break
+			}
 
 		case payload := <-c.Inbox:
-			log.Info("Got inbound message ", payload.State)
-			helpers.Dump(payload)
+			msg := "INBOX: " + payload.State + " - " + payload.Message
+			log.Info(msg)
+			helpers.Debug(payload)
+			stateFunc := InboxStates[payload.State]
+			if stateFunc == nil {
+				log.Error("Unknown inbox command ", payload.State)
+				err := formatMessage("error", "Unknown inbox command", nil)
+				// TODO: add optional err to Teardown()
+				c.Outbox <- err
+				c.Teardown()
+				break
+			}
+
+			stateError := stateFunc(c, &payload)
+			if stateError != nil {
+				log.Error("State Handling failed for ", payload.State)
+				// TODO: add optional err to Teardown()
+				c.Outbox <- *stateError
+				c.Teardown()
+				break
+			}
 
 		case <-terminate:
 			log.Info("Terminating Control Handler")
