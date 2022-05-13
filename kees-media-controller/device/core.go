@@ -1,8 +1,6 @@
 package device
 
 import (
-	"os"
-	"os/signal"
 	"sync"
 
 	"github.com/Masterminds/log-go"
@@ -14,16 +12,20 @@ import (
 )
 
 type MediaController struct {
-	Server  config.ServerConfig `json:"server"`
-	Device  Device              `json:"device"`
-	Token   string              `json:"token"`
-	Auth    JWT                 `json:"auth"`
-	Active  sync.WaitGroup
-	Conn    *websocket.Conn `json:"conn"`
-	State   string          `json:"state"`
-	Outbox  chan messages.WebSocket
-	Control chan messages.WebSocket
+	Server   config.ServerConfig `json:"server"`
+	Device   Device              `json:"device"`
+	Token    string              `json:"token"`
+	Auth     JWT                 `json:"auth"`
+	Active   sync.WaitGroup
+	Conn     *websocket.Conn `json:"conn"`
+	State    string          `json:"state"`
+	Handlers map[string]HandlerClose
+	Outbox   chan messages.WebSocket
+	Inbox    chan messages.WebSocket
+	Control  chan string
 }
+
+type HandlerClose chan bool
 
 type Device struct {
 	ID         string `json:"id"`
@@ -56,15 +58,29 @@ func NewMediaController(config *config.Config) *MediaController {
 			Version:    config.Device.Version,
 			Controller: config.Device.Controller,
 		},
-		Token:   config.Device.Token,
-		State:   "auth",
-		Outbox:  make(chan messages.WebSocket, 256),
-		Control: make(chan messages.WebSocket, 128),
+		Token:    config.Device.Token,
+		State:    "auth",
+		Outbox:   make(chan messages.WebSocket, 256),
+		Inbox:    make(chan messages.WebSocket, 128),
+		Control:  make(chan string, 128),
+		Handlers: make(map[string]HandlerClose),
 	}
 }
 
 func (c *MediaController) baseURL(scheme string) string {
 	return scheme + "://" + c.Server.Host + ":" + c.Server.Port
+}
+
+func formatMessage(state string, message string, data *map[string]interface{}) messages.WebSocket {
+	if data == nil {
+		data = &map[string]interface{}{}
+	}
+
+	return messages.WebSocket{
+		State:   state,
+		Message: message,
+		Data:    *data,
+	}
 }
 
 func (c *MediaController) Run() {
@@ -84,100 +100,39 @@ func (c *MediaController) Run() {
 	conn := c.EstablishWebSocket()
 	c.Conn = conn
 
-	log.Info("Starting websocket handlers")
-
-	c.Active.Add(1)
-	go c.ReadHandler()
-	go c.WriteHandler()
-
-	c.WebSocketAuth()
+	c.StartHandlers()
+	c.Control <- "auth"
 	c.Active.Wait()
 }
 
-func (c *MediaController) Disconnect(message messages.WebSocket) {
-	c.State = "disconnect"
-	c.Control <- message
+// NOTE: waitgroup.Add needs to be issued outside of the goroutine otherwise
+//	 there is a race on the goroutine start and the waitgroup.Wait
+//	 this results in the application closing when it should really be waiting on the handlers
+func (c *MediaController) StartHandlers() {
+	go c.ReadHandler()
+	c.Active.Add(1)
+
+	go c.WriteHandler()
+	c.Active.Add(1)
+
+	go c.ControlHandler()
+	c.Active.Add(1)
 }
 
-func (c *MediaController) WebSocketAuth() {
-	data := messages.WebSocket{
-		State:   "auth",
-		Message: "Authenticating " + c.Device.Name,
-		Data: map[string]interface{}{
-			"token": c.Auth.Token,
-		},
-	}
+func (c *MediaController) Teardown() {
+	c.State = "teardown"
+	log.Info("Tearing down MediaController")
+	// ReadHandler doesn't register a handler because Conn.ReadJSON
+	// is blocking and doesn't support a select/chan interface
+	// we need to just close the Conn for it to terminate
+	log.Info("Closing websocket connection")
+	c.Conn.Close()
 
-	helpers.Debug(data)
-	c.Outbox <- data
-}
+	// for everything else with a handler, push a terminate message
+	// down on the registered handler chan
 
-func (c *MediaController) ReadHandler() {
-	for {
-		payload := messages.WebSocket{}
-		err := c.Conn.ReadJSON(&payload)
-		if err != nil {
-			helpers.Dump(err)
-			data := messages.WebSocket{
-				State:   "error",
-				Message: "Invalid JSON Payload",
-				Data:    map[string]interface{}{},
-			}
-
-			c.Disconnect(data)
-			break
-		}
-
-		helpers.Debug(payload)
-
-		msg := payload.State + " - " + payload.Message
-		log.Info(msg)
-
-		state := payload.State
-		helpers.Debug(state)
-	}
-}
-
-func (c *MediaController) WriteHandler() {
-	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, os.Interrupt)
-
-	for {
-		select {
-		case <-interrupt:
-			data := messages.WebSocket{
-				State:   "error",
-				Message: "Application Close",
-				Data:    map[string]interface{}{},
-			}
-
-			c.Disconnect(data)
-
-		// TODO: might want to move c.Control to separate controlHandler(+goroutine)
-		//       and signal to writeHandler separately
-		case disconnect, ok := <-c.Control:
-			helpers.Debug(ok)
-			helpers.Debug(disconnect)
-
-			// TODO: do i need SetWriteDeadline here?
-			err := c.Conn.WriteJSON(disconnect)
-			if err != nil {
-				log.Error("WebSocket Control WriteJSON failed")
-				helpers.Dump(err)
-			}
-			c.Active.Done()
-			return
-
-		case message, ok := <-c.Outbox:
-			helpers.Debug(ok)
-			helpers.Debug(message)
-
-			// TODO: do i need SetWriteDeadline here?
-			err := c.Conn.WriteJSON(message)
-			if err != nil {
-				log.Error("WebSocket Outbox WriteJSON failed")
-				helpers.Dump(err)
-			}
-		}
+	for handler, terminateChan := range c.Handlers {
+		log.Info("Pushing terminate to " + handler)
+		terminateChan <- true
 	}
 }
