@@ -17,7 +17,8 @@ var ControlStates = map[string]StateHandler{
 }
 
 var InboxStates = map[string]StateHandler{
-	"auth": (*MediaController).WebSocketAuthAck,
+	"auth":    (*MediaController).WebSocketAuthAck,
+	"command": (*MediaController).Command,
 }
 
 func (c *MediaController) ControlHandler() {
