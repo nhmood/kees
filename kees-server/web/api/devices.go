@@ -7,9 +7,15 @@ import (
 
 	"kees/server/devices"
 	"kees/server/helpers"
+	"kees/server/models"
 
 	"kees/server/web/responses"
 )
+
+type DeviceAddPayloadV1 struct {
+	Name       string `json:"name"`
+	Controller string `json:"controller"`
+}
 
 type MCResponse struct {
 	devices.MediaControllerInfo
@@ -29,6 +35,29 @@ type CommandResponse struct {
 type Command struct {
 	ID      string `json:"id"`
 	Command string `json:"command"`
+}
+
+func AddDeviceV1(w http.ResponseWriter, r *http.Request) {
+	jwt := r.Context().Value("jwt").(map[string]interface{})
+	helpers.Debug(jwt)
+
+	payload := &DeviceAddPayloadV1{}
+	err := helpers.Parse(r, payload)
+
+	device := &models.Device{
+		Name:       payload.Name,
+		Controller: payload.Controller,
+	}
+
+	device, err = models.Devices.Insert(*device)
+	data, err := helpers.Format(device)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Write(data)
+	return
 }
 
 func DevicesV1(w http.ResponseWriter, r *http.Request) {
