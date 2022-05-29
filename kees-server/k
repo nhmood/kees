@@ -19,6 +19,7 @@ case $1 in
   migrate)
     for migration in `ls db/migrations/*.sql`; do
       echo $migration
+      sqlite3 db/kees.db < $migration
     done
 
     ;;

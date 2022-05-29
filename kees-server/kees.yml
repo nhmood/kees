@@ -1,6 +1,6 @@
 database:
   type: "sqlite"
-  path: "db/kees.sqlite"
+  path: "db/kees.db"
 logging:
   debug: false
   spew_depth: 2
