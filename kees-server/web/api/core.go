@@ -25,10 +25,9 @@ func Configure(router *mux.Router, path string, b *devices.Broker) {
 	apiAuth := api.PathPrefix("/").Subrouter()
 	apiAuth.Use(middlewares.ValidateJWT)
 	apiAuth.HandleFunc("/v1/devices", DevicesV1).Methods("GET")
-	apiAuth.HandleFunc("/v1/devices/add", AddDeviceV1).Methods("POST")
+	apiAuth.HandleFunc("/v1/devices/add", DeviceAddV1).Methods("POST")
 	apiAuth.HandleFunc("/v1/devices/{device_id}", DeviceInfoV1).Methods("GET")
 	apiAuth.HandleFunc("/v1/devices/{device_id}/commands/{operation}", CommandIssueV1).Methods("POST")
-
 }
 
 func Root(w http.ResponseWriter, r *http.Request) {

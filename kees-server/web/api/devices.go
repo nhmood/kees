@@ -7,6 +7,7 @@ import (
 
 	"kees/server/devices"
 	"kees/server/helpers"
+	"kees/server/messages"
 	"kees/server/models"
 
 	"kees/server/web/responses"
@@ -22,11 +23,6 @@ type MCResponse struct {
 	Capabilities []string `json:"capabilities"`
 }
 
-//type CommandResponse struct {
-//	Device   MCResponse               `json:"device"`
-//	Commands []map[string]interface{} `json:"commands"`
-//}
-
 type CommandResponse struct {
 	Device  MCResponse `json:"device"`
 	Command Command    `json:"command"`
@@ -37,13 +33,14 @@ type Command struct {
 	Command string `json:"command"`
 }
 
-func AddDeviceV1(w http.ResponseWriter, r *http.Request) {
+func DeviceAddV1(w http.ResponseWriter, r *http.Request) {
 	jwt := r.Context().Value("jwt").(map[string]interface{})
 	helpers.Debug(jwt)
 
 	payload := &DeviceAddPayloadV1{}
 	err := helpers.Parse(r, payload)
 
+	// TODO: should the name be provided to us (created by admin, static for device)?
 	device := &models.Device{
 		Name:       payload.Name,
 		Controller: payload.Controller,
@@ -64,22 +61,14 @@ func DevicesV1(w http.ResponseWriter, r *http.Request) {
 	jwt := r.Context().Value("jwt").(map[string]interface{})
 	helpers.Debug(jwt)
 
-	mcs := make([]*MCResponse, 0)
-	for _, v := range broker.MediaControllers {
-		// TODO: pull capabilities by device type from database
-		mcr := &MCResponse{MediaControllerInfo: v.Info, Capabilities: []string{
-			"play",
-			"stop",
-			"rewind",
-			"fast_forward",
-			"pause",
-			"shuffle",
-		}}
-
-		mcs = append(mcs, mcr)
+	page := helpers.GetPage(r)
+	devices, err := models.Devices.All(page)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
-	data, err := helpers.Format(mcs)
+	data, err := helpers.Format(devices)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -95,11 +84,11 @@ func DeviceInfoV1(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: add database lookup along with broker lookup
 	deviceID := helpers.GetStringParam(r, "device_id", helpers.URLParam)
-	mc := broker.MediaControllers[deviceID]
+	device, err := models.Devices.Get(deviceID)
 
-	if mc == nil {
+	if device == nil {
 		data, err := helpers.Format(responses.Generic{
-			Message: "DeviceID: " + deviceID + " not online",
+			Message: "DeviceID: " + deviceID + " not found",
 			Data:    map[string]interface{}{},
 		})
 
@@ -113,16 +102,7 @@ func DeviceInfoV1(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	mcr := &MCResponse{MediaControllerInfo: mc.Info, Capabilities: []string{
-		"play",
-		"stop",
-		"rewind",
-		"fast_forward",
-		"pause",
-		"shuffle",
-	}}
-
-	data, err := helpers.Format(mcr)
+	data, err := helpers.Format(device)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
