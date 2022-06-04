@@ -57,6 +57,61 @@ func DeviceAddV1(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func DeviceDeleteV1(w http.ResponseWriter, r *http.Request) {
+	jwt := r.Context().Value("jwt").(map[string]interface{})
+	helpers.Debug(jwt)
+
+	deviceID := helpers.GetStringParam(r, "device_id", helpers.URLParam)
+	device, err := models.Devices.Get(deviceID)
+	// TODO: handle no result error here
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if device == nil {
+		data, err := helpers.Format(responses.Generic{
+			Message: "DeviceID: " + deviceID + " not online",
+			Data:    map[string]interface{}{},
+		})
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(data)
+		return
+	}
+
+	// TODO: pass message to broker to disconnect device
+	device.Delete()
+	mc := broker.MediaControllers[deviceID]
+	if mc != nil {
+		deleteMessage := messages.WebSocket{
+			State:   "error",
+			Message: "Device Deleted",
+			Data:    map[string]interface{}{},
+		}
+		mc.Disconnect(deleteMessage)
+	}
+
+	data, err := helpers.Format(responses.Generic{
+		Message: "DeviceID: " + deviceID + " successfully deleted",
+		Data:    map[string]interface{}{},
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusBadRequest)
+	w.Write(data)
+	return
+
+}
+
 func DevicesV1(w http.ResponseWriter, r *http.Request) {
 	jwt := r.Context().Value("jwt").(map[string]interface{})
 	helpers.Debug(jwt)
