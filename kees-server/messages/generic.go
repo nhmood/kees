@@ -1,4 +1,4 @@
-package responses
+package messages
 
 type Generic struct {
 	Message string                 `json:"message"`
