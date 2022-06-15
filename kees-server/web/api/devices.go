@@ -15,6 +15,11 @@ type DeviceAddPayloadV1 struct {
 	Controller string `json:"controller"`
 }
 
+type DeviceResponseV1 struct {
+	Device models.Device     `json:"device"`
+	Auth   map[string]string `json:"auth"`
+}
+
 func DeviceAddV1(w http.ResponseWriter, r *http.Request) {
 	jwt := r.Context().Value("jwt").(map[string]interface{})
 	helpers.Debug(jwt)
@@ -29,7 +34,19 @@ func DeviceAddV1(w http.ResponseWriter, r *http.Request) {
 	}
 
 	device, err = models.Devices.Insert(*device)
-	data, err := helpers.Format(device)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	resp := DeviceResponseV1{
+		Device: *device,
+		Auth: map[string]string{
+			"token": device.Token,
+		},
+	}
+
+	data, err := helpers.Format(resp)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

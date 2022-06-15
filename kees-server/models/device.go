@@ -20,7 +20,7 @@ type Device struct {
 	Controller    string    `json:"controller", db:"controller"`
 	Online        bool      `json:"online", db:"online"`
 	LastHeartbeat time.Time `json:"last_heartbeat", db:"last_heartbeat"`
-	Token         string    `json:"token", db:"token"`
+	Token         string    `json:"-", db:"token"`
 	capabilities  string    `db:capabilities"`
 	Capabilities  []string  `json:"capabilities"`
 }
