@@ -33,6 +33,39 @@ func DeviceAddV1(w http.ResponseWriter, r *http.Request) {
 		Controller: payload.Controller,
 	}
 
+	if len(device.Name) == 0 {
+		data, err := helpers.Format(responses.Generic{
+			Message: "Invalid Name provided for Media Controller",
+			Data:    map[string]interface{}{},
+		})
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(data)
+		return
+	}
+
+	// TODO: only allow registered controllers
+	if len(device.Controller) == 0 {
+		data, err := helpers.Format(responses.Generic{
+			Message: "Invalid Name provided for Media Controller",
+			Data:    map[string]interface{}{},
+		})
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(data)
+		return
+	}
+
 	device, err = models.Devices.Insert(*device)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -70,7 +103,7 @@ func DeviceDeleteV1(w http.ResponseWriter, r *http.Request) {
 
 	if device == nil {
 		data, err := helpers.Format(responses.Generic{
-			Message: "DeviceID: " + deviceID + " not online",
+			Message: "DeviceID: " + deviceID + " not found",
 			Data:    map[string]interface{}{},
 		})
 
