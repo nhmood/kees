@@ -206,3 +206,13 @@ func (device Device) Heartbeat() error {
 	device.LastHeartbeat = time.Now()
 	return device.Update()
 }
+
+func (device Device) ValidOperation(operation string) bool {
+	for _, c := range device.Capabilities {
+		if c == operation {
+			return true
+		}
+	}
+
+	return false
+}
