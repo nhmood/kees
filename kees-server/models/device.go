@@ -32,8 +32,9 @@ type DeviceInterface struct {
 
 var Devices = DeviceInterface{
 	SQL: map[string]string{
-		"All":  "SELECT * FROM devices LIMIT $1 OFFSET $2",
-		"ByID": "SELECT * FROM devices WHERE id = $1",
+		"All":     "SELECT * FROM devices LIMIT $1 OFFSET $2",
+		"ByID":    "SELECT * FROM devices WHERE id = $1",
+		"ByToken": "SELECT * FROM devices WHERE token = $1",
 		"Insert": `
 			INSERT INTO devices
 				(id, created_at, updated_at, name, version, controller, online, last_heartbeat, token, capabilities)
@@ -104,6 +105,22 @@ func (i DeviceInterface) Get(id string) (*Device, error) {
 	}
 
 	row := DB.QueryRow(Devices.SQL["ByID"], id)
+	device, err := i.Scan(row)
+	if err != nil {
+		return nil, err
+	}
+	helpers.Dump(device)
+
+	return &device, nil
+}
+
+func (i DeviceInterface) ByToken(token string) (*Device, error) {
+	token = strings.TrimSpace(token)
+	if len(token) == 0 {
+		return nil, errors.New("Invalid Token")
+	}
+
+	row := DB.QueryRow(Devices.SQL["ByToken"], token)
 	device, err := i.Scan(row)
 	if err != nil {
 		return nil, err
