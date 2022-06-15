@@ -64,7 +64,7 @@ func ClientAuthV1(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO: replace id with proper db user id
-	jwt, expiresIn, err := helpers.GenerateJWT(map[string]string{
+	jwt, expiresIn, err := helpers.GenerateJWT(map[string]interface{}{
 		"id":       user.ID,
 		"username": user.Username,
 		"client":   user.Client,

@@ -14,7 +14,7 @@ func ConfigureJWT(config config.JWTConfig) {
 	jwtConfiguration = config
 }
 
-func GenerateJWT(data map[string]string) (string, int64, error) {
+func GenerateJWT(data map[string]interface{}) (string, int64, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
 
@@ -25,12 +25,7 @@ func GenerateJWT(data map[string]string) (string, int64, error) {
 	claims["iss"] = jwtConfiguration.Issuer
 
 	// TODO: replace with function pointer to specific claim updater function
-	claims["kees"] = map[string]string{
-		"id":         data["id"],
-		"name":       data["name"],
-		"version":    data["version"],
-		"controller": data["controller"],
-	}
+	claims["kees"] = data
 
 	Debug(claims)
 

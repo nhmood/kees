@@ -97,7 +97,7 @@ func WebsocketAuthV1(w http.ResponseWriter, r *http.Request) {
 	controllerInfo.ID = id.String()
 
 	helpers.Debug(controllerInfo)
-	jwt, expiresIn, err := helpers.GenerateJWT(map[string]string{
+	jwt, expiresIn, err := helpers.GenerateJWT(map[string]interface{}{
 		"id":         controllerInfo.ID,
 		"name":       controllerInfo.Name,
 		"version":    controllerInfo.Version,
