@@ -7,6 +7,7 @@ import (
 
 	"kees/server/devices"
 	"kees/server/helpers"
+	"kees/server/models"
 
 	"kees/server/web/responses"
 )
@@ -67,17 +68,20 @@ type CommandResponse struct {
 //}
 
 func CommandIssueV1(w http.ResponseWriter, r *http.Request) {
-	token := r.Header.Get("X-Kees-JWT-Token")
-	helpers.Debug(token)
+	jwt := r.Context().Value("jwt").(map[string]interface{})
+	helpers.Debug(jwt)
 
-	jwt, err := helpers.ValidateJWT(token)
-	if err != nil {
+	deviceID := helpers.GetStringParam(r, "device_id", helpers.URLParam)
+	device, err := models.Devices.Get(deviceID)
+
+	if device == nil {
 		data, err := helpers.Format(responses.Generic{
-			Message: "Invalid JWT",
+			Message: "DeviceID: " + deviceID + " not found",
+			Data:    map[string]interface{}{},
 		})
 
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
@@ -85,13 +89,8 @@ func CommandIssueV1(w http.ResponseWriter, r *http.Request) {
 		w.Write(data)
 		return
 	}
-	helpers.Debug(jwt)
 
-	// TODO: add database lookup along with broker lookup
-	deviceID := helpers.GetStringParam(r, "device_id", helpers.URLParam)
-	mc := broker.MediaControllers[deviceID]
-
-	if mc == nil {
+	if !device.Online {
 		data, err := helpers.Format(responses.Generic{
 			Message: "DeviceID: " + deviceID + " not online",
 			Data:    map[string]interface{}{},
@@ -108,29 +107,28 @@ func CommandIssueV1(w http.ResponseWriter, r *http.Request) {
 	}
 
 	operation := helpers.GetStringParam(r, "operation", helpers.URLParam)
-
-	// TODO: pull capabilities by device type from database
-	validOperation := func(string) bool {
-		capabilities := []string{
-			"play",
-			"stop",
-			"rewind",
-			"fast_forward",
-			"pause",
-			"shuffle",
-		}
-
-		for _, c := range capabilities {
-			if c == operation {
-				return true
-			}
-		}
-		return false
-	}(operation)
+	validOperation := device.ValidOperation(operation)
 
 	if !validOperation {
 		data, err := helpers.Format(responses.Generic{
 			Message: "Operation: " + operation + " not valid capability",
+			Data:    map[string]interface{}{},
+		})
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(data)
+		return
+	}
+
+	mc := broker.MediaControllers[device.ID]
+	if mc == nil {
+		data, err := helpers.Format(responses.Generic{
+			Message: "DeviceID: " + deviceID + " broker connection missing",
 			Data:    map[string]interface{}{},
 		})
 
