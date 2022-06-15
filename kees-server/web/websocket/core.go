@@ -3,12 +3,12 @@ package websocket
 import (
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 
 	"kees/server/devices"
 	"kees/server/helpers"
+	"kees/server/models"
 	"kees/server/web/middlewares"
 	"kees/server/web/responses"
 )
@@ -16,10 +16,15 @@ import (
 var upgrader = websocket.Upgrader{}
 var broker *devices.Broker
 
+type DeviceUpdate struct {
+	Version      string   `json:"version"`
+	Capabilities []string `json:"capabilities"`
+}
+
 type AuthResponse struct {
-	Message string                      `json:"message"`
-	Device  devices.MediaControllerInfo `json:"device"`
-	JWT     JWTResponse                 `json:"jwt"`
+	Message string        `json:"message"`
+	Device  models.Device `json:"device"`
+	JWT     JWTResponse   `json:"jwt"`
 }
 
 type JWTResponse struct {
@@ -68,8 +73,8 @@ func WebsocketAuthV1(w http.ResponseWriter, r *http.Request) {
 	token := r.Header.Get("X-Kees-MC-Token")
 	helpers.Debug(token)
 
-	// TODO: make this a database lookup for token -> ID/registered device
-	if token != "cdplayer" {
+	device, err := models.Devices.ByToken(token)
+	if device == nil {
 		data, err := helpers.Format(responses.Generic{
 			Message: "Unauthorized Media Controller",
 			Data:    map[string]interface{}{},
@@ -84,24 +89,38 @@ func WebsocketAuthV1(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	controllerInfo := devices.MediaControllerInfo{}
-	err := helpers.Parse(r, &controllerInfo)
+	deviceUpdate := DeviceUpdate{}
+	err = helpers.Parse(r, &deviceUpdate)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	// assign ID after we parse in case client provides an empty ID field and we
-	// accidentally override it with an empty value in the MediaControllerInfo struct
-	id := uuid.New()
-	controllerInfo.ID = id.String()
+	if len(deviceUpdate.Version) == 0 {
+		data, err := helpers.Format(responses.Generic{
+			Message: "Invalid Media Controller Version",
+			Data:    map[string]interface{}{},
+		})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-	helpers.Debug(controllerInfo)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(data)
+		return
+	}
+
+	device.Version = deviceUpdate.Version
+	device.Capabilities = deviceUpdate.Capabilities
+	err = device.Update()
+
 	jwt, expiresIn, err := helpers.GenerateJWT(map[string]interface{}{
-		"id":         controllerInfo.ID,
-		"name":       controllerInfo.Name,
-		"version":    controllerInfo.Version,
-		"controller": controllerInfo.Controller,
+		"id":           device.ID,
+		"name":         device.Name,
+		"version":      device.Version,
+		"controller":   device.Controller,
+		"capabilities": device.Capabilities,
 	})
 
 	if err != nil {
@@ -112,8 +131,8 @@ func WebsocketAuthV1(w http.ResponseWriter, r *http.Request) {
 	helpers.Debug(jwt)
 
 	jwtResponse := AuthResponse{
-		Message: "successfully authd " + controllerInfo.Name,
-		Device:  controllerInfo,
+		Message: "successfully authd " + device.Name,
+		Device:  *device,
 		JWT: JWTResponse{
 			ExpiresIn: expiresIn,
 			Token:     jwt,
