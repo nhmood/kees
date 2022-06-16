@@ -4,6 +4,8 @@
 export GIT_COMMIT=$(git rev-list -1 HEAD)
 export KEES_CONFIG="./kees.yml"
 
+MIGRATION_PATH="db/migrations"
+
 
 case $1 in
   build)
@@ -13,7 +15,9 @@ case $1 in
 
   migration)
     MIGRATION_FILE="$(date +%s_%Y-%m-%d_%H-%M-%S)_${2}.sql"
-    printf "\n\n\nINSERT INTO migrations (name, migrated_at)\n  VALUES (\"%s\", strftime('%%s', \"now\"));" $MIGRATION_FILE > db/migrations/$MIGRATION_FILE
+    MIGRATION="${MIGRATION_PATH}/${MIGRATION_FILE}"
+    echo "Creating migration file ${MIGRATION}"
+    printf "\n\n\nINSERT INTO migrations (name, migrated_at)\n  VALUES (\"%s\", strftime('%%s', \"now\"));" $MIGRATION_FILE > $MIGRATION
     ;;
 
   migrate)
