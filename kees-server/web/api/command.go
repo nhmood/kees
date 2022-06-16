@@ -5,7 +5,6 @@ import (
 
 	"github.com/Masterminds/log-go"
 
-	"kees/server/devices"
 	"kees/server/helpers"
 	"kees/server/models"
 )
@@ -15,14 +14,9 @@ type Command struct {
 	Command string `json:"command"`
 }
 
-type MCResponse struct {
-	devices.MediaControllerInfo
-	Capabilities []string `json:"capabilities"`
-}
-
 type CommandResponse struct {
-	Device  MCResponse `json:"device"`
-	Command Command    `json:"command"`
+	Device  models.Device `json:"device"`
+	Command Command       `json:"command"`
 }
 
 //type CommandResponse struct {
@@ -102,17 +96,7 @@ func CommandIssueV1(w http.ResponseWriter, r *http.Request) {
 	helpers.Debug(commandID)
 
 	resp := CommandResponse{
-		Device: MCResponse{
-			MediaControllerInfo: mc.Info,
-			Capabilities: []string{
-				"play",
-				"stop",
-				"rewind",
-				"fast_forward",
-				"pause",
-				"shuffle",
-			},
-		},
+		Device: *device,
 		Command: Command{
 			ID:      commandID,
 			Command: operation,
