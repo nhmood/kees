@@ -8,7 +8,6 @@ import (
 	"kees/server/helpers"
 
 	"kees/server/web/middlewares"
-	"kees/server/web/responses"
 )
 
 var broker *devices.Broker
@@ -32,17 +31,6 @@ func Configure(router *mux.Router, path string, b *devices.Broker) {
 }
 
 func Root(w http.ResponseWriter, r *http.Request) {
-
-	helloWorld := responses.Generic{
-		Message: "Hello World!",
-		Data:    map[string]interface{}{},
-	}
-
-	data, err := helpers.Format(helloWorld)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Write(data)
+	helpers.Halt(w, http.StatusOK, "Hello World!", nil)
 	return
 }

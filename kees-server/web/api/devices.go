@@ -6,8 +6,6 @@ import (
 	"kees/server/helpers"
 	"kees/server/messages"
 	"kees/server/models"
-
-	"kees/server/web/responses"
 )
 
 type DeviceAddPayloadV1 struct {
@@ -34,35 +32,13 @@ func DeviceAddV1(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(device.Name) == 0 {
-		data, err := helpers.Format(responses.Generic{
-			Message: "Invalid Name provided for Media Controller",
-			Data:    map[string]interface{}{},
-		})
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(data)
+		helpers.Halt(w, http.StatusBadRequest, "Invalid Name provided for Media Controller", nil)
 		return
 	}
 
 	// TODO: only allow registered controllers
 	if len(device.Controller) == 0 {
-		data, err := helpers.Format(responses.Generic{
-			Message: "Invalid Name provided for Media Controller",
-			Data:    map[string]interface{}{},
-		})
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(data)
+		helpers.Halt(w, http.StatusBadRequest, "Invalid Name provided for Media Controller", nil)
 		return
 	}
 
@@ -102,18 +78,7 @@ func DeviceDeleteV1(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if device == nil {
-		data, err := helpers.Format(responses.Generic{
-			Message: "DeviceID: " + deviceID + " not found",
-			Data:    map[string]interface{}{},
-		})
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(data)
+		helpers.Halt(w, http.StatusBadRequest, "DeviceID: "+deviceID+" not found", nil)
 		return
 	}
 
@@ -129,19 +94,8 @@ func DeviceDeleteV1(w http.ResponseWriter, r *http.Request) {
 		mc.Disconnect(deleteMessage)
 	}
 
-	data, err := helpers.Format(responses.Generic{
-		Message: "DeviceID: " + deviceID + " successfully deleted",
-		Data:    map[string]interface{}{},
-	})
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	w.WriteHeader(http.StatusBadRequest)
-	w.Write(data)
+	helpers.Halt(w, http.StatusOK, "DeviceID: "+deviceID+" successfully deleted", nil)
 	return
-
 }
 
 func DevicesV1(w http.ResponseWriter, r *http.Request) {
@@ -174,18 +128,7 @@ func DeviceInfoV1(w http.ResponseWriter, r *http.Request) {
 	device, err := models.Devices.Get(deviceID)
 
 	if device == nil {
-		data, err := helpers.Format(responses.Generic{
-			Message: "DeviceID: " + deviceID + " not found",
-			Data:    map[string]interface{}{},
-		})
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(data)
+		helpers.Halt(w, http.StatusBadRequest, "DeviceID: "+deviceID+" not found", nil)
 		return
 	}
 

@@ -1,8 +1,9 @@
 package middlewares
 
 import (
-	"kees/server/constants"
 	"net/http"
+
+	"kees/server/constants"
 )
 
 func AddBaseHeaders(next http.Handler) http.Handler {
@@ -16,6 +17,7 @@ func AddBaseHeaders(next http.Handler) http.Handler {
 func AddJSONHeader(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "application/json")
+
 		next.ServeHTTP(w, r)
 	})
 }

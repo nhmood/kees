@@ -10,7 +10,6 @@ import (
 	"kees/server/helpers"
 	"kees/server/models"
 	"kees/server/web/middlewares"
-	"kees/server/web/responses"
 )
 
 var upgrader = websocket.Upgrader{}
@@ -49,22 +48,12 @@ func Configure(router *mux.Router, path string, b *devices.Broker) {
 }
 
 func WebsocketInfo(w http.ResponseWriter, r *http.Request) {
-	helloWorld := responses.Generic{
-		Message: "kees websocket portal",
-		Data: map[string]interface{}{
-			"available": map[string]string{
-				"mediacontroller": "/v1/mc",
-				"webclient":       "/v1/wc",
-			},
+	helpers.Halt(w, http.StatusOK, "kees websocket portal", map[string]interface{}{
+		"available": map[string]string{
+			"mediacontroller": "/v1/mc",
+			"webclient":       "/v1/wc",
 		},
-	}
-
-	data, err := helpers.Format(helloWorld)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Write(data)
+	})
 	return
 }
 
@@ -75,17 +64,7 @@ func WebsocketAuthV1(w http.ResponseWriter, r *http.Request) {
 
 	device, err := models.Devices.ByToken(token)
 	if device == nil {
-		data, err := helpers.Format(responses.Generic{
-			Message: "Unauthorized Media Controller",
-			Data:    map[string]interface{}{},
-		})
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(data)
+		helpers.Halt(w, http.StatusBadRequest, "Unauthorized Media Controller", nil)
 		return
 	}
 
@@ -97,17 +76,7 @@ func WebsocketAuthV1(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(deviceUpdate.Version) == 0 {
-		data, err := helpers.Format(responses.Generic{
-			Message: "Invalid Media Controller Version",
-			Data:    map[string]interface{}{},
-		})
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(data)
+		helpers.Halt(w, http.StatusBadRequest, "Invalid Media Controller Version", nil)
 		return
 	}
 

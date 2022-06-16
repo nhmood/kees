@@ -5,6 +5,8 @@ import (
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
+
+	"kees/server/messages"
 )
 
 func Format(data interface{}) ([]byte, error) {
@@ -84,4 +86,25 @@ func ToInterface(data interface{}) map[string]interface{} {
 func ToStruct(data interface{}, target interface{}) {
 	str, _ := Format(data)
 	json.Unmarshal([]byte(str), target)
+}
+
+func Halt(w http.ResponseWriter, code int, message string, data map[string]interface{}) {
+	if data == nil {
+		data = map[string]interface{}{}
+	}
+
+	response := messages.Generic{
+		Message: message,
+		Data:    data,
+	}
+
+	payload, err := Format(response)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(code)
+	w.Write(payload)
+	return
 }

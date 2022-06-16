@@ -8,8 +8,6 @@ import (
 	"kees/server/devices"
 	"kees/server/helpers"
 	"kees/server/models"
-
-	"kees/server/web/responses"
 )
 
 type Command struct {
@@ -75,34 +73,12 @@ func CommandIssueV1(w http.ResponseWriter, r *http.Request) {
 	device, err := models.Devices.Get(deviceID)
 
 	if device == nil {
-		data, err := helpers.Format(responses.Generic{
-			Message: "DeviceID: " + deviceID + " not found",
-			Data:    map[string]interface{}{},
-		})
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(data)
+		helpers.Halt(w, http.StatusBadRequest, "DeviceID: "+deviceID+" not found", nil)
 		return
 	}
 
 	if !device.Online {
-		data, err := helpers.Format(responses.Generic{
-			Message: "DeviceID: " + deviceID + " not online",
-			Data:    map[string]interface{}{},
-		})
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(data)
+		helpers.Halt(w, http.StatusBadRequest, "DeviceID: "+deviceID+" not online", nil)
 		return
 	}
 
@@ -110,35 +86,13 @@ func CommandIssueV1(w http.ResponseWriter, r *http.Request) {
 	validOperation := device.ValidOperation(operation)
 
 	if !validOperation {
-		data, err := helpers.Format(responses.Generic{
-			Message: "Operation: " + operation + " not valid capability",
-			Data:    map[string]interface{}{},
-		})
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(data)
+		helpers.Halt(w, http.StatusBadRequest, "Operation: "+operation+" not valid capability", nil)
 		return
 	}
 
 	mc := broker.MediaControllers[device.ID]
 	if mc == nil {
-		data, err := helpers.Format(responses.Generic{
-			Message: "DeviceID: " + deviceID + " broker connection missing",
-			Data:    map[string]interface{}{},
-		})
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(data)
+		helpers.Halt(w, http.StatusBadRequest, "DeviceID: "+deviceID+" broker connection missing", nil)
 		return
 	}
 

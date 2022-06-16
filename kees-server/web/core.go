@@ -13,7 +13,6 @@ import (
 
 	"kees/server/web/api"
 	"kees/server/web/middlewares"
-	"kees/server/web/responses"
 	"kees/server/web/websocket"
 )
 
@@ -42,19 +41,9 @@ func Configure(c config.ServerConfig) {
 }
 
 func Root(w http.ResponseWriter, r *http.Request) {
-	helloWorld := responses.Generic{
-		Message: "Hello World from kees-server!",
-		Data: map[string]interface{}{
-			"commit": constants.GitCommit,
-		},
-	}
-
-	data, err := helpers.Format(helloWorld)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Write(data)
+	helpers.Halt(w, http.StatusOK, "Hello world from kees-server", map[string]interface{}{
+		"commit": constants.GitCommit,
+	})
 	return
 }
 

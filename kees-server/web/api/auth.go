@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"kees/server/helpers"
-	"kees/server/web/responses"
 )
 
 type ClientCredentials struct {
@@ -43,17 +42,7 @@ func ClientAuthV1(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: make this a database lookup for username/password
 	if credentials.Username != "kees" && credentials.Password != "cdplayer" {
-		data, err := helpers.Format(responses.Generic{
-			Message: "Unauthorized Client",
-			Data:    map[string]interface{}{},
-		})
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(data)
+		helpers.Halt(w, http.StatusBadRequest, "Unauthorized Client", nil)
 		return
 	}
 

@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"kees/server/helpers"
-	"kees/server/web/responses"
 )
 
 func ValidateJWT(next http.Handler) http.Handler {
@@ -15,18 +14,7 @@ func ValidateJWT(next http.Handler) http.Handler {
 
 		jwt, err := helpers.ValidateJWT(token)
 		if err != nil {
-			data, err := helpers.Format(responses.Generic{
-				Message: "Invalid JWT",
-				Data:    map[string]interface{}{},
-			})
-
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write(data)
+			helpers.Halt(w, http.StatusBadRequest, "Invalid JWT", nil)
 			return
 		}
 		helpers.Debug(jwt)
