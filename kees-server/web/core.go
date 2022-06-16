@@ -41,6 +41,9 @@ func Configure(c config.ServerConfig) {
 }
 
 func Root(w http.ResponseWriter, r *http.Request) {
+	// root endpoint doesn't have its own subrouter so we can't apply a middleware
+	// for this one endpoint, manually set the content-type to application/json
+	w.Header().Add("Content-Type", "application/json")
 	helpers.Halt(w, http.StatusOK, "Hello world from kees-server", map[string]interface{}{
 		"commit": constants.GitCommit,
 	})
