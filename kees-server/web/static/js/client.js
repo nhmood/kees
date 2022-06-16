@@ -166,12 +166,12 @@ class KeesClient {
     let status = this.elements.getDevices.el.querySelector("i");
     status.classList = 'fa-solid fa-circle-notch fa-spin';
 
-    this.event("auth", "getDevices", this.session.jwt);
+    this.event("auth", "getDevices", this.session.data.jwt);
 
     let resp = await fetch('/api/v1/devices', {
       method: "GET",
       headers: {
-        'X-Kees-JWT-Token': this.session.jwt.token
+        'X-Kees-JWT-Token': this.session.data.jwt.token
       }
     });
 
@@ -288,7 +288,7 @@ class KeesClient {
       state: "auth",
       message: "this is a good auth",
       data: {
-        token: this.session.jwt.token
+        token: this.session.data.jwt.token
       }
     }
 
@@ -312,12 +312,12 @@ class KeesClient {
     status.classList = 'fa-solid fa-circle-notch fa-spin';
 
     let endpoint = `/api/v1/devices/${deviceID}/commands/${action}`;
-    this.event("action", action, {token: this.session.jwt, endpoint: endpoint});
+    this.event("action", action, {token: this.session.data.jwt, endpoint: endpoint});
 
     let resp = await fetch(endpoint, {
       method: "POST",
       headers: {
-        'X-Kees-JWT-Token': this.session.jwt.token
+        'X-Kees-JWT-Token': this.session.data.jwt.token
       }
     });
 

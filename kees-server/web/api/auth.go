@@ -19,9 +19,8 @@ type User struct {
 }
 
 type ClientAuthResponse struct {
-	Message string      `json:"message"`
-	User    User        `json:"user"`
-	JWT     JWTResponse `json:"jwt"`
+	User User        `json:"user"`
+	JWT  JWTResponse `json:"jwt"`
 }
 
 // TODO: move to common messages
@@ -65,20 +64,20 @@ func ClientAuthV1(w http.ResponseWriter, r *http.Request) {
 	}
 	helpers.Debug(jwt)
 
-	jwtResponse := ClientAuthResponse{
-		Message: "successfully authd " + user.Username,
-		User:    user,
+	jwtPayload := ClientAuthResponse{
+		User: user,
 		JWT: JWTResponse{
 			ExpiresIn: expiresIn,
 			Token:     jwt,
 		},
 	}
 
-	data, err := helpers.Format(jwtResponse)
+	data := helpers.ToInterface(jwtPayload)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.Write(data)
+
+	helpers.Halt(w, http.StatusOK, "successfully authd "+user.Username, data)
 	return
 }
