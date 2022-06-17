@@ -5,6 +5,7 @@ class KeesClient {
     this.session = undefined;
     this.ws = undefined;
     this.logCount = 0;
+    this.getDevicesTimeout = undefined;
 
     this.actions = this.setupHooks();
     this.elements = this.setupElements();
@@ -92,6 +93,7 @@ class KeesClient {
     this.actions.reset.show();
 
     this.elements.getDevices.show();
+    this.getDevices();
   }
 
 
@@ -179,8 +181,8 @@ class KeesClient {
     this.event("auth", "get devices response", data);
     status.classList = 'fa-solid fa-check good';
 
-
     this.renderDevices(data)
+    this.getDevicesTimeout = setTimeout(() => {this.getDevices()}, 5000);
   }
 
 
