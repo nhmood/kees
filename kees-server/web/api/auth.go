@@ -73,11 +73,6 @@ func ClientAuthV1(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := helpers.ToInterface(jwtPayload)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
 	helpers.Halt(w, http.StatusOK, "successfully authd "+user.Username, data)
 	return
 }
