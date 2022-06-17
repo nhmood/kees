@@ -141,7 +141,14 @@ class KeesClientSimulator {
     let device = {
       name: el.querySelector('#name').value,
       version: el.querySelector('#version').value,
-      controller: el.querySelector('#controller').value
+      controller: el.querySelector('#controller').value,
+      capabilities: [
+        "play",
+        "stop",
+        "fast_foward",
+        "rewind",
+        "pause"
+      ]
     }
 
     let token = el.querySelector("#deviceToken").value;
