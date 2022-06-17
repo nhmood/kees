@@ -10,18 +10,12 @@ import (
 	"kees/server/helpers"
 )
 
-type Status string
-
-const (
-	New Status = "new"
-)
-
 type Command struct {
 	ID        string    `json:"id", db:"id"`
 	CreatedAt time.Time `json:"created_at", db:"created_at"`
 	UpdatedAt time.Time `json:"updated_at", db:"updated_at"`
 	Operation string    `json:"operation", db:"operation"`
-	Status    Status    `json:"status", db:"status"`
+	Status    string    `json:"status", db:"status"`
 	Metadata  string    `json:"metadata", db:"metadata"`
 
 	Client   string `json:"client", db:"client"`
@@ -45,11 +39,10 @@ var Commands = CommandInterface{
 		"Update": `
 			UPDATE commands SET
 				updated_at		= $1,
-				operation       = $2,
-				status          = $3,
-				metadata		= $4,
+				status			= $2,
+				metadata		= $3
 			WHERE
-				id = $5`,
+				id = $4`,
 		"Delete": `
 			DELETE FROM commands
 			WHERE
@@ -144,7 +137,7 @@ func (command Command) Update() error {
 		return err
 	}
 
-	res, err := stmt.Exec(&command.UpdatedAt, &command.Status, &command.Metadata)
+	res, err := stmt.Exec(&command.UpdatedAt, &command.Status, &command.Metadata, &command.ID)
 	if err != nil {
 		return err
 	}
@@ -152,6 +145,12 @@ func (command Command) Update() error {
 	helpers.Dump(command)
 	return nil
 }
+
+func (command Command) UpdateStatus(status string) error {
+	command.Status = status
+	return command.Update()
+}
+
 func (command Command) Delete() error {
 	stmt, err := DB.Prepare(Commands.SQL["Delete"])
 	helpers.Debug(err)
