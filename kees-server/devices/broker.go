@@ -51,13 +51,13 @@ func (b *Broker) EventHandler() {
 		case mc, ok := <-b.mcRegister:
 			log.Info("Registration event for " + mc.Identifier)
 			helpers.Debug(ok)
-			b.MediaControllers[mc.Info.ID] = mc
+			b.MediaControllers[mc.Device.ID] = mc
 			helpers.Debug(b)
 
 		case mc, ok := <-b.mcDeregister:
 			log.Info("Deregistration event for " + mc.Identifier)
 			helpers.Debug(ok)
-			delete(b.MediaControllers, mc.Info.ID)
+			delete(b.MediaControllers, mc.Device.ID)
 			helpers.Debug(b)
 		}
 	}

@@ -71,6 +71,8 @@ func CommandIssueV1(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	helpers.Dump(device)
+
 	if !device.Online {
 		helpers.Halt(w, http.StatusBadRequest, "DeviceID: "+deviceID+" not online", nil)
 		return
@@ -92,7 +94,7 @@ func CommandIssueV1(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: create command record in database
 	commandID := mc.IssueCommand(operation)
-	log.Info("Command:" + commandID + "/" + operation + " created for " + mc.Info.ID)
+	log.Info("Command:" + commandID + "/" + operation + " created for " + mc.Device.ID)
 	helpers.Debug(commandID)
 
 	resp := CommandResponse{

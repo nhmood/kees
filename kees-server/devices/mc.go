@@ -9,24 +9,18 @@ import (
 
 	"kees/server/helpers"
 	"kees/server/messages"
+	"kees/server/models"
 )
 
 type MediaController struct {
 	Identifier string
-	Info       MediaControllerInfo
+	Device     models.Device
 	Active     sync.WaitGroup
 	Conn       *websocket.Conn
 	Broker     *Broker
 	State      string
 	Outbox     chan messages.WebSocket
 	Control    chan messages.WebSocket
-}
-
-type MediaControllerInfo struct {
-	ID         string `json:"id"`
-	Name       string `json:"name"`
-	Version    string `json:"version"`
-	Controller string `json:"controller"`
 }
 
 type MediaControllerState func(*MediaController, messages.WebSocket) *messages.WebSocket
@@ -128,6 +122,8 @@ func (mc *MediaController) WriteHandler() {
 			helpers.Debug(ok)
 			helpers.Debug(disconnect)
 
+			mc.Device.SetOffline()
+
 			// TODO: do i need SetWriteDeadline here?
 			err := mc.Conn.WriteJSON(disconnect)
 			if err != nil {
@@ -177,16 +173,34 @@ func (mc *MediaController) Auth(payload messages.WebSocket) *messages.WebSocket 
 		return jwtError
 	}
 
-	helpers.ToStruct(jwt["kees"], &mc.Info)
-	log.Info(mc.identify(mc.Info.ID + " successfuly authenticated"))
-	helpers.Debug(mc.Info)
+	// TODO: this looks wonky
+	deviceID := jwt["kees"].(map[string]interface{})["id"].(string)
 
-	mc.Identifier = mc.Identifier + "/" + mc.Info.ID
+	device, err := models.Devices.Get(deviceID)
+	helpers.Dump(device)
+
+	if err != nil || device == nil {
+		log.Error(mc.identify("Device not found"))
+		jwtError := &messages.WebSocket{
+			State:   "error",
+			Message: "Device Not Found",
+			Data:    map[string]interface{}{},
+		}
+		return jwtError
+	}
+
+	mc.Device = *device
+	mc.Device.SetOnline()
+
+	log.Info(mc.identify(mc.Device.ID + " successfuly authenticated"))
+	helpers.Debug(mc.Device)
+
+	mc.Identifier = mc.Identifier + "/" + mc.Device.ID
 
 	auth := messages.WebSocket{
 		State:   "auth",
 		Message: "successfully authenticated",
-		Data:    helpers.ToInterface(mc.Info),
+		Data:    helpers.ToInterface(mc.Device),
 	}
 
 	mc.Broker.Register(mc)
