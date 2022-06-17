@@ -214,19 +214,21 @@ func (mc *MediaController) Disconnect(message messages.WebSocket) {
 	mc.Control <- message
 }
 
-func (mc *MediaController) IssueCommand(command string) string {
-	id := uuid.New()
-	commandID := id.String()
+func (mc *MediaController) IssueCommand(command *models.Command) {
+
+	data := helpers.ToInterface(command)
 	message := messages.WebSocket{
 		State:   "command",
-		Message: "command issue for " + command,
-		Data: map[string]interface{}{
-			"command": command,
-			"id":      commandID,
-		},
+		Message: "command issue for " + command.Operation,
+		Data:    data,
 	}
 	helpers.Debug(message)
 
 	mc.Outbox <- message
-	return commandID
+	err := command.UpdateStatus("pending")
+	if err != nil {
+		helpers.Dump(err)
+		command.UpdateStatus("error")
+	}
+	helpers.Dump(command)
 }

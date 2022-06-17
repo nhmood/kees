@@ -15,8 +15,8 @@ type Command struct {
 }
 
 type CommandResponse struct {
-	Device  models.Device `json:"device"`
-	Command Command       `json:"command"`
+	Device  models.Device  `json:"device"`
+	Command models.Command `json:"command"`
 }
 
 //type CommandResponse struct {
@@ -66,6 +66,12 @@ func CommandIssueV1(w http.ResponseWriter, r *http.Request) {
 	deviceID := helpers.GetStringParam(r, "device_id", helpers.URLParam)
 	device, err := models.Devices.Get(deviceID)
 
+	if err != nil {
+		data := helpers.ToInterface(err)
+		helpers.Halt(w, http.StatusInternalServerError, "Device Lookup Failed", data)
+		return
+	}
+
 	if device == nil {
 		helpers.Halt(w, http.StatusBadRequest, "DeviceID: "+deviceID+" not found", nil)
 		return
@@ -92,25 +98,29 @@ func CommandIssueV1(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	command := &models.Command{
+		Operation: operation,
+		Status:    "new",
+		Metadata:  "",
+		Client:    r.UserAgent(),
+		DeviceID:  device.ID,
+	}
+	helpers.Dump(command)
+
+	command, err = models.Commands.Insert(*command)
+	helpers.Dump(command)
+
 	// TODO: create command record in database
-	commandID := mc.IssueCommand(operation)
-	log.Info("Command:" + commandID + "/" + operation + " created for " + mc.Device.ID)
-	helpers.Debug(commandID)
+	mc.IssueCommand(command)
+	log.Info("Command:" + command.ID + "/" + command.Operation + " created for " + command.DeviceID)
+	helpers.Debug(command.ID)
 
 	resp := CommandResponse{
-		Device: *device,
-		Command: Command{
-			ID:      commandID,
-			Command: operation,
-		},
+		Device:  *device,
+		Command: *command,
 	}
 
-	data, err := helpers.Format(resp)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	w.Write(data)
+	data := helpers.ToInterface(resp)
+	helpers.Halt(w, 200, "Command: "+command.Operation+" initiated", data)
 	return
 }
