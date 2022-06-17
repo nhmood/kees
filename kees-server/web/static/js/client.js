@@ -186,13 +186,19 @@ class KeesClient {
 
   renderDevices(data){
     this.elements.devices.show();
+    this.elements.deviceList.el.innerHTML = '';
 
     // for each device, render the device info and associated actions
     data.forEach(d => {
       console.log(d)
+      var online = d.online ? "online" : "offline";
+      var disabled = d.online ? "" : "disabled";
+
+
       var tmpl = `
         <div class="row device" data-device-id="${d.id}">
           <div class="row name">${d.name}</div>
+          <div class="row status ${online}">${online}</div>
           <div class="row id">${d.id}</div>
           <div class="row controller">${d.controller} @ ${d.version}</div>
           <div class="row actions">
@@ -210,7 +216,7 @@ class KeesClient {
       // walk through the capabilities and creat+hook a button for them
       d.capabilities.forEach(c => {
         let btn = `
-          <button data-device-id="${d.id}" data-device-action="${c}" hook="deviceAction">${c}</button>
+          <button ${disabled} class="${disabled}" data-device-id="${d.id}" data-device-action="${c}" hook="deviceAction">${c}</button>
         `;
         let t = document.createElement("template");
         t.innerHTML = btn;

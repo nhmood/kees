@@ -42,3 +42,21 @@ i {
   font-size: 20px;
   font-weight: 800;
 }
+
+.status {
+  color: white;
+  border-radius: 10px;
+}
+
+.online {
+  background: #136F63;
+}
+
+.offline {
+  background: #DB3069;
+}
+
+.disabled {
+  background: #efefef;
+  text-decoration: line-through;
+}
