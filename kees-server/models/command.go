@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"errors"
 	"strings"
 	"time"
@@ -29,8 +30,9 @@ type CommandInterface struct {
 
 var Commands = CommandInterface{
 	SQL: map[string]string{
-		"All":  "SELECT * FROM commands LIMIT $1 OFFSET $2",
-		"ByID": "SELECT * FROM commands WHERE id = $1",
+		"All":      "SELECT * FROM commands LIMIT $1 OFFSET $2",
+		"ByID":     "SELECT * FROM commands WHERE id = $1",
+		"ByDevice": "SELECT * FROM commands WHERE device_id = $1 LIMIT $2 OFFSET $3",
 		"Insert": `
 			INSERT INTO commands
 				(id, created_at, updated_at, operation, status, metadata, client, device_id)
@@ -69,6 +71,36 @@ func (i CommandInterface) All(page int64) ([]*Command, error) {
 	}
 	defer rows.Close()
 
+	commands, err := i.getRows(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	helpers.Dump(commands)
+	return commands, nil
+}
+
+func (i CommandInterface) ByDevice(deviceID string, page int64) ([]*Command, error) {
+	if page < 0 {
+		return nil, errors.New("Invalid page request, must be > 0")
+	}
+
+	rows, err := DB.Query(Commands.SQL["ByDevice"], deviceID, Commands.PageCount, (page)*Commands.PageCount)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	commands, err := i.getRows(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	helpers.Dump(commands)
+	return commands, nil
+}
+
+func (i CommandInterface) getRows(rows *sql.Rows) ([]*Command, error) {
 	commands := make([]*Command, 0)
 	for rows.Next() {
 		command, err := i.Scan(rows)
@@ -80,11 +112,10 @@ func (i CommandInterface) All(page int64) ([]*Command, error) {
 		commands = append(commands, &command)
 	}
 
-	if err = rows.Err(); err != nil {
+	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 
-	helpers.Dump(commands)
 	return commands, nil
 }
 
