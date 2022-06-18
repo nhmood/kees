@@ -26,8 +26,8 @@ type CommandByDeviceList struct {
 }
 
 type CommandResponse struct {
-	Device  models.Device  `json:"device"`
-	Command models.Command `json:"command"`
+	Device  *models.Device  `json:"device"`
+	Command *models.Command `json:"command"`
 }
 
 func CommandHistoryV1(w http.ResponseWriter, r *http.Request) {
@@ -150,8 +150,8 @@ func CommandIssueV1(w http.ResponseWriter, r *http.Request) {
 	helpers.Debug(command.ID)
 
 	resp := CommandResponse{
-		Device:  *device,
-		Command: *command,
+		Device:  device,
+		Command: command,
 	}
 
 	data := helpers.ToInterface(resp)
