@@ -168,7 +168,7 @@ class KeesClient {
     let status = this.elements.getDevices.el.querySelector("i");
     status.classList = 'fa-solid fa-circle-notch fa-spin';
 
-    this.event("auth", "getDevices", this.session.data.jwt);
+    this.event("devices", "getDevices", this.session.data.jwt);
 
     let resp = await fetch('/api/v1/devices', {
       method: "GET",
@@ -178,7 +178,7 @@ class KeesClient {
     });
 
     let data = await resp.json();
-    this.event("auth", "get devices response", data);
+    this.event("devices", "get devices response", data);
     status.classList = 'fa-solid fa-check good';
 
     this.renderDevices(data)
