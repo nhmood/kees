@@ -27,6 +27,9 @@ func Configure(router *mux.Router, path string, b *devices.Broker) {
 	apiAuth.HandleFunc("/v1/devices/add", DeviceAddV1).Methods("POST")
 	apiAuth.HandleFunc("/v1/devices/{device_id}", DeviceInfoV1).Methods("GET")
 	apiAuth.HandleFunc("/v1/devices/{device_id}/delete", DeviceDeleteV1).Methods("POST")
+
+	apiAuth.HandleFunc("/v1/commands/", CommandHistoryV1).Methods("GET")
+	apiAuth.HandleFunc("/v1/devices/{device_id}/commands/", CommandHistoryByDeviceV1).Methods("GET")
 	apiAuth.HandleFunc("/v1/devices/{device_id}/commands/{operation}", CommandIssueV1).Methods("POST")
 }
 

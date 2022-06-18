@@ -14,50 +14,84 @@ type Command struct {
 	Command string `json:"command"`
 }
 
+type CommandAllList struct {
+	Commands  []*models.Command `json:"commands"`
+	Page      int64             `json:"page"`
+	PageCount int64             `json:"page_count"`
+}
+
+type CommandByDeviceList struct {
+	CommandAllList
+	Device *models.Device `json:"device"`
+}
+
 type CommandResponse struct {
 	Device  models.Device  `json:"device"`
 	Command models.Command `json:"command"`
 }
 
-//type CommandResponse struct {
-//	Device   MCResponse               `json:"device"`
-//	Commands []map[string]interface{} `json:"commands"`
-//}
-//func CommandHistoryV1(w http.ResponseWriter, r *http.Request) {
-//	token := r.Header.Get("X-Kees-JWT-Token")
-//	helpers.Debug(token)
-//
-//	jwt, err := helpers.ValidateJWT(token)
-//	if err != nil {
-//		data, err := helpers.Format(responses.Generic{
-//			Message: "Invalid JWT",
-//		})
-//
-//		if err != nil {
-//			http.Error(w, err.Error(), http.StatusInternalServerError)
-//			return
-//		}
-//
-//		w.WriteHeader(http.StatusBadRequest)
-//		w.Write(data)
-//		return
-//	}
-//	helpers.Debug(jwt)
-//
-//	data, err := helpers.Format(responses.Generic{
-//		Message: "Not implemented",
-//		Data:    map[string]interface{}{},
-//	})
-//
-//	if err != nil {
-//		http.Error(w, err.Error(), http.StatusBadRequest)
-//		return
-//	}
-//
-//	w.WriteHeader(http.StatusBadRequest)
-//	w.Write(data)
-//	return
-//}
+func CommandHistoryV1(w http.ResponseWriter, r *http.Request) {
+	jwt := r.Context().Value("jwt").(map[string]interface{})
+	helpers.Debug(jwt)
+
+	page := helpers.GetPage(r)
+	commands, err := models.Commands.All(page)
+
+	if err != nil {
+		data := helpers.ToInterface(err)
+		helpers.Halt(w, http.StatusInternalServerError, "Failed to lookup Command List", data)
+		return
+	}
+
+	resp := CommandAllList{
+		Commands:  commands,
+		Page:      page,
+		PageCount: models.Commands.PageCount,
+	}
+
+	data := helpers.ToInterface(resp)
+	helpers.Halt(w, http.StatusOK, "Command History", data)
+	return
+}
+
+func CommandHistoryByDeviceV1(w http.ResponseWriter, r *http.Request) {
+	jwt := r.Context().Value("jwt").(map[string]interface{})
+	helpers.Debug(jwt)
+
+	page := helpers.GetPage(r)
+
+	deviceID := helpers.GetStringParam(r, "device_id", helpers.URLParam)
+	helpers.Dump(deviceID)
+
+	device, err := models.Devices.Get(deviceID)
+
+	if err != nil {
+		data := helpers.ToInterface(err)
+		helpers.Halt(w, http.StatusInternalServerError, "Device Lookup Failed", data)
+		return
+	}
+
+	if device == nil {
+		helpers.Halt(w, http.StatusBadRequest, "DeviceID: "+deviceID+" not found", nil)
+		return
+	}
+
+	helpers.Dump(device)
+	commands, err := models.Commands.ByDevice(deviceID, page)
+
+	resp := CommandByDeviceList{
+		CommandAllList: CommandAllList{
+			Commands:  commands,
+			Page:      page,
+			PageCount: models.Commands.PageCount,
+		},
+		Device: device,
+	}
+
+	data := helpers.ToInterface(resp)
+	helpers.Halt(w, http.StatusOK, "Command History", data)
+	return
+}
 
 func CommandIssueV1(w http.ResponseWriter, r *http.Request) {
 	jwt := r.Context().Value("jwt").(map[string]interface{})
