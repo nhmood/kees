@@ -76,7 +76,7 @@ func (i CommandInterface) All(page int64) ([]*Command, error) {
 		return nil, err
 	}
 
-	helpers.Dump(commands)
+	helpers.Debug(commands)
 	return commands, nil
 }
 
@@ -96,7 +96,7 @@ func (i CommandInterface) ByDevice(deviceID string, page int64) ([]*Command, err
 		return nil, err
 	}
 
-	helpers.Dump(commands)
+	helpers.Debug(commands)
 	return commands, nil
 }
 
@@ -108,7 +108,7 @@ func (i CommandInterface) getRows(rows *sql.Rows) ([]*Command, error) {
 			helpers.Dump(err)
 			continue
 		}
-		helpers.Dump(command)
+		helpers.Debug(command)
 		commands = append(commands, &command)
 	}
 
@@ -130,7 +130,7 @@ func (i CommandInterface) Get(id string) (*Command, error) {
 	if err != nil {
 		return nil, err
 	}
-	helpers.Dump(command)
+	helpers.Debug(command)
 
 	return &command, nil
 }
@@ -172,8 +172,8 @@ func (command Command) Update() error {
 	if err != nil {
 		return err
 	}
-	helpers.Dump(res)
-	helpers.Dump(command)
+	helpers.Debug(res)
+	helpers.Debug(command)
 	return nil
 }
 
@@ -194,7 +194,7 @@ func (command Command) Delete() error {
 		return err
 	}
 
-	helpers.Dump(res)
-	helpers.Dump(err)
+	helpers.Debug(res)
+	helpers.Debug(err)
 	return nil
 }

@@ -61,7 +61,7 @@ func CommandHistoryByDeviceV1(w http.ResponseWriter, r *http.Request) {
 	page := helpers.GetPage(r)
 
 	deviceID := helpers.GetStringParam(r, "device_id", helpers.URLParam)
-	helpers.Dump(deviceID)
+	helpers.Debug(deviceID)
 
 	device, err := models.Devices.Get(deviceID)
 
@@ -76,7 +76,7 @@ func CommandHistoryByDeviceV1(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helpers.Dump(device)
+	helpers.Debug(device)
 	commands, err := models.Commands.ByDevice(deviceID, page)
 
 	resp := CommandByDeviceList{
@@ -111,7 +111,7 @@ func CommandIssueV1(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helpers.Dump(device)
+	helpers.Debug(device)
 
 	if !device.Online {
 		helpers.Halt(w, http.StatusBadRequest, "DeviceID: "+deviceID+" not online", nil)
@@ -139,10 +139,10 @@ func CommandIssueV1(w http.ResponseWriter, r *http.Request) {
 		Client:    r.UserAgent(),
 		DeviceID:  device.ID,
 	}
-	helpers.Dump(command)
+	helpers.Debug(command)
 
 	command, err = models.Commands.Insert(*command)
-	helpers.Dump(command)
+	helpers.Debug(command)
 
 	// TODO: create command record in database
 	mc.IssueCommand(command)

@@ -86,7 +86,7 @@ func (i DeviceInterface) All(page int64) ([]*Device, error) {
 			helpers.Dump(err)
 			continue
 		}
-		helpers.Dump(device)
+		helpers.Debug(device)
 		devices = append(devices, &device)
 	}
 
@@ -94,7 +94,7 @@ func (i DeviceInterface) All(page int64) ([]*Device, error) {
 		return nil, err
 	}
 
-	helpers.Dump(devices)
+	helpers.Debug(devices)
 	return devices, nil
 }
 
@@ -109,7 +109,7 @@ func (i DeviceInterface) Get(id string) (*Device, error) {
 	if err != nil {
 		return nil, err
 	}
-	helpers.Dump(device)
+	helpers.Debug(device)
 
 	return &device, nil
 }
@@ -125,7 +125,7 @@ func (i DeviceInterface) ByToken(token string) (*Device, error) {
 	if err != nil {
 		return nil, err
 	}
-	helpers.Dump(device)
+	helpers.Debug(device)
 
 	return &device, nil
 }
@@ -170,8 +170,8 @@ func (device Device) Update() error {
 	if err != nil {
 		return err
 	}
-	helpers.Dump(res)
-	helpers.Dump(device)
+	helpers.Debug(res)
+	helpers.Debug(device)
 	return nil
 }
 func (device Device) Delete() error {
@@ -186,8 +186,8 @@ func (device Device) Delete() error {
 		return err
 	}
 
-	helpers.Dump(res)
-	helpers.Dump(err)
+	helpers.Debug(res)
+	helpers.Debug(err)
 	return nil
 }
 
