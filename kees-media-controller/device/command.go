@@ -6,22 +6,22 @@ import (
 
 	"github.com/Masterminds/log-go"
 
-	"kees/media-controller/helpers"
-	"kees/media-controller/messages"
+	"kees/controller/helpers"
+	"kees/controller/messages"
 )
 
-type CommandHandler func(*MediaController) *messages.WebSocket
+type CommandHandler func(*Controller) *messages.WebSocket
 
 var CommandHandlers = map[string]CommandHandler{
-	"play":         (*MediaController).Play,
-	"stop":         (*MediaController).Stop,
-	"rewind":       (*MediaController).Rewind,
-	"fast_forward": (*MediaController).FastForward,
-	"pause":        (*MediaController).Pause,
-	"shuffle":      (*MediaController).Shuffle,
+	"play":         (*Controller).Play,
+	"stop":         (*Controller).Stop,
+	"rewind":       (*Controller).Rewind,
+	"fast_forward": (*Controller).FastForward,
+	"pause":        (*Controller).Pause,
+	"shuffle":      (*Controller).Shuffle,
 }
 
-func (c *MediaController) Command(payload *messages.WebSocket) *messages.WebSocket {
+func (c *Controller) Command(payload *messages.WebSocket) *messages.WebSocket {
 	helpers.Debug(payload)
 	command := payload.Data["command"].(string)
 	commandFunc := CommandHandlers[command]
@@ -51,32 +51,32 @@ func runCommand(command string) bool {
 	return true
 }
 
-func (c *MediaController) Play() *messages.WebSocket {
+func (c *Controller) Play() *messages.WebSocket {
 	runCommand("play")
 	return nil
 }
 
-func (c *MediaController) Stop() *messages.WebSocket {
+func (c *Controller) Stop() *messages.WebSocket {
 	runCommand("stop")
 	return nil
 }
 
-func (c *MediaController) Rewind() *messages.WebSocket {
+func (c *Controller) Rewind() *messages.WebSocket {
 	runCommand("rewind")
 	return nil
 }
 
-func (c *MediaController) FastForward() *messages.WebSocket {
+func (c *Controller) FastForward() *messages.WebSocket {
 	runCommand("fast_forward")
 	return nil
 }
 
-func (c *MediaController) Pause() *messages.WebSocket {
+func (c *Controller) Pause() *messages.WebSocket {
 	runCommand("pause")
 	return nil
 }
 
-func (c *MediaController) Shuffle() *messages.WebSocket {
+func (c *Controller) Shuffle() *messages.WebSocket {
 	runCommand("shuffle")
 	return nil
 }

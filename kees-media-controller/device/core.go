@@ -6,12 +6,12 @@ import (
 	"github.com/Masterminds/log-go"
 	"github.com/gorilla/websocket"
 
-	"kees/media-controller/config"
-	"kees/media-controller/helpers"
-	"kees/media-controller/messages"
+	"kees/controller/config"
+	"kees/controller/helpers"
+	"kees/controller/messages"
 )
 
-type MediaController struct {
+type Controller struct {
 	Server   config.ServerConfig `json:"server"`
 	Device   Device              `json:"device"`
 	Token    string              `json:"token"`
@@ -45,13 +45,13 @@ type AuthResponse struct {
 	JWT     JWT    `json:"jwt"`
 }
 
-func NewMediaController(config *config.Config) *MediaController {
+func NewController(config *config.Config) *Controller {
 	// TODO: add custom logger on instantiation and avoid
 	//       having to call c.identify on all strings
 
-	log.Info("Creating media controller for " + config.Device.Name + "/" + config.Device.Version + "/" + config.Device.Controller)
+	log.Info("Creating controller for " + config.Device.Name + "/" + config.Device.Version + "/" + config.Device.Controller)
 
-	return &MediaController{
+	return &Controller{
 		Server: config.Server,
 		Device: Device{
 			Name:       config.Device.Name,
@@ -67,7 +67,7 @@ func NewMediaController(config *config.Config) *MediaController {
 	}
 }
 
-func (c *MediaController) baseURL(scheme string) string {
+func (c *Controller) baseURL(scheme string) string {
 	return scheme + "://" + c.Server.Host + ":" + c.Server.Port
 }
 
@@ -83,7 +83,7 @@ func formatMessage(state string, message string, data *map[string]interface{}) m
 	}
 }
 
-func (c *MediaController) Run() {
+func (c *Controller) Run() {
 	defer func() {
 		log.Info("Session ended")
 		c.Conn.Close()
@@ -108,7 +108,7 @@ func (c *MediaController) Run() {
 // NOTE: waitgroup.Add needs to be issued outside of the goroutine otherwise
 //	 there is a race on the goroutine start and the waitgroup.Wait
 //	 this results in the application closing when it should really be waiting on the handlers
-func (c *MediaController) StartHandlers() {
+func (c *Controller) StartHandlers() {
 	go c.ReadHandler()
 	c.Active.Add(1)
 
@@ -119,9 +119,9 @@ func (c *MediaController) StartHandlers() {
 	c.Active.Add(1)
 }
 
-func (c *MediaController) Teardown() {
+func (c *Controller) Teardown() {
 	c.State = "teardown"
-	log.Info("Tearing down MediaController")
+	log.Info("Tearing down Controller")
 
 	// ReadHandler doesn't register a handler because Conn.ReadJSON
 	// is blocking and doesn't support a select/chan interface

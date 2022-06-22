@@ -6,22 +6,22 @@ import (
 
 	"github.com/Masterminds/log-go"
 
-	"kees/media-controller/helpers"
-	"kees/media-controller/messages"
+	"kees/controller/helpers"
+	"kees/controller/messages"
 )
 
-type StateHandler func(*MediaController, *messages.WebSocket) *messages.WebSocket
+type StateHandler func(*Controller, *messages.WebSocket) *messages.WebSocket
 
 var ControlStates = map[string]StateHandler{
-	"auth": (*MediaController).WebSocketAuth,
+	"auth": (*Controller).WebSocketAuth,
 }
 
 var InboxStates = map[string]StateHandler{
-	"auth":    (*MediaController).WebSocketAuthAck,
-	"command": (*MediaController).Command,
+	"auth":    (*Controller).WebSocketAuthAck,
+	"command": (*Controller).Command,
 }
 
-func (c *MediaController) ControlHandler() {
+func (c *Controller) ControlHandler() {
 	defer c.Active.Done()
 
 	// create standard terminate channel to signal killing goroutine entirely

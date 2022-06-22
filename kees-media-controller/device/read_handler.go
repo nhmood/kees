@@ -3,11 +3,11 @@ package device
 import (
 	"github.com/Masterminds/log-go"
 
-	"kees/media-controller/helpers"
-	"kees/media-controller/messages"
+	"kees/controller/helpers"
+	"kees/controller/messages"
 )
 
-func (c *MediaController) ReadHandler() {
+func (c *Controller) ReadHandler() {
 	defer c.Active.Done()
 
 	// gorilla websocket does not support a channel interface so we need to

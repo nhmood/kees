@@ -1,4 +1,4 @@
-module kees/media-controller
+module kees/controller
 
 go 1.15
 

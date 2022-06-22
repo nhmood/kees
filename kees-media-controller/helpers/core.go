@@ -1,7 +1,7 @@
 package helpers
 
 import (
-	"kees/media-controller/config"
+	"kees/controller/config"
 )
 
 func Configure(config *config.Config) {

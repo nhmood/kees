@@ -8,15 +8,15 @@ import (
 
 	"github.com/Masterminds/log-go"
 
-	"kees/media-controller/constants"
-	"kees/media-controller/helpers"
+	"kees/controller/constants"
+	"kees/controller/helpers"
 )
 
-func (c *MediaController) getAuthURL() string {
+func (c *Controller) getAuthURL() string {
 	return c.baseURL("http") + "/ws/v1/auth"
 }
 
-func (c *MediaController) Authenticate() *AuthResponse {
+func (c *Controller) Authenticate() *AuthResponse {
 	jsonData, err := helpers.Format(c.Device)
 	if err != nil {
 		log.Warn("Failed to format Device info")
@@ -28,7 +28,7 @@ func (c *MediaController) Authenticate() *AuthResponse {
 		c.getAuthURL(),
 		bytes.NewBuffer(jsonData),
 	)
-	request.Header.Set("User-Agent", "kees/media-controller/"+constants.Version)
+	request.Header.Set("User-Agent", "kees/controller/"+constants.Version)
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("X-Kees-MC-Token", c.Token)
 

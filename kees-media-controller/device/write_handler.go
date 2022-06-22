@@ -3,10 +3,10 @@ package device
 import (
 	"github.com/Masterminds/log-go"
 
-	"kees/media-controller/helpers"
+	"kees/controller/helpers"
 )
 
-func (c *MediaController) WriteHandler() {
+func (c *Controller) WriteHandler() {
 	defer c.Active.Done()
 
 	// create standard terminate channel to signal killing goroutine entirely

@@ -8,11 +8,11 @@ export KEES_CONFIG="./kees.yml"
 case $1 in
   build)
     gofmt -w .
-    go build -ldflags "-X kees/media-controller/constants.GitCommit=$GIT_COMMIT"
+    go build -ldflags "-X kees/controller/constants.GitCommit=$GIT_COMMIT"
     ;;
 
   run)
-    ./media-controller
+    ./controller
     ;;
 
   again)
