@@ -32,7 +32,7 @@ func (c *Controller) getCapabilities() []string {
 
 func (c *Controller) Authenticate() *AuthResponse {
 	deviceUpdate := DeviceUpdate{
-		Version:      c.Device.Version,
+		Version:      constants.Version,
 		Capabilities: c.getCapabilities(),
 	}
 
