@@ -2,6 +2,7 @@ package device
 
 import (
 	"bytes"
+	"io"
 	"net/http"
 	"os"
 	"time"
@@ -61,7 +62,19 @@ func (c *Controller) Authenticate() *AuthResponse {
 		os.Exit(1)
 	}
 
-	// TODO: add handling of non200 response
+	if resp.StatusCode != http.StatusOK {
+		log.Warn("Failed to authenticate " + c.Device.Name)
+
+		defer resp.Body.Close()
+		bs, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatal(err)
+			os.Exit(1)
+		}
+		log.Error(string(bs))
+		os.Exit(1)
+	}
+
 	authResp := AuthResponse{}
 	helpers.Parse(resp, &authResp)
 	helpers.Debug(authResp)
