@@ -14,8 +14,7 @@ func main() {
 	configPath := os.Getenv("KEES_CONFIG")
 	Configuration, err := config.ReadConfig(configPath)
 	if err != nil {
-		log.Error("Failed to read config yaml from KEES_CONFIG -> ", configPath)
-		log.Panic(err)
+		log.Error("Failed to read config yaml from KEES_CONFIG:", configPath)
 		os.Exit(1)
 	}
 
