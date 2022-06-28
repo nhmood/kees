@@ -7,8 +7,16 @@ export KEES_CONFIG="./kees.yml"
 
 case $1 in
   build)
+    output="controller"
+    if [ "$2" == "pi" ]; then
+      export GOARCH=arm
+      export GOARM=5
+      export GOOS=linux
+      output="${output}-pi"
+    fi
+
     gofmt -w .
-    go build -ldflags "-X kees/controller/constants.GitCommit=$GIT_COMMIT"
+    go build -ldflags "-X kees/controller/constants.GitCommit=$GIT_COMMIT" -o release/$output
     ;;
 
   run)
