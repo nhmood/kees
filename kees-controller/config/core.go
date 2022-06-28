@@ -9,9 +9,10 @@ import (
 )
 
 type Config struct {
-	Logging LoggingConfig `yaml:"logging"`
-	Server  ServerConfig  `yaml:"server"`
-	Device  DeviceConfig  `yaml:"device"`
+	Logging      LoggingConfig     `yaml:"logging"`
+	Server       ServerConfig      `yaml:"server"`
+	Device       DeviceConfig      `yaml:"device"`
+	Capabilities map[string]string `yaml:"capabilities"`
 }
 
 func ReadConfig(filename string) (*Config, error) {

@@ -28,10 +28,11 @@ type Controller struct {
 type HandlerClose chan bool
 
 type Device struct {
-	ID         string `json:"id"`
-	Name       string `json:"name"`
-	Version    string `json:"version"`
-	Controller string `json:"controller"`
+	ID           string            `json:"id"`
+	Name         string            `json:"name"`
+	Version      string            `json:"version"`
+	Controller   string            `json:"controller"`
+	Capabilities map[string]string `json:"capabilities"`
 }
 
 type JWT struct {
@@ -54,9 +55,10 @@ func NewController(config *config.Config) *Controller {
 	return &Controller{
 		Server: config.Server,
 		Device: Device{
-			Name:       config.Device.Name,
-			Version:    config.Device.Version,
-			Controller: config.Device.Controller,
+			Name:         config.Device.Name,
+			Version:      config.Device.Version,
+			Controller:   config.Device.Controller,
+			Capabilities: config.Capabilities,
 		},
 		Token:    config.Device.Token,
 		State:    "auth",

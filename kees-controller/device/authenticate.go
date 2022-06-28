@@ -12,12 +12,31 @@ import (
 	"kees/controller/helpers"
 )
 
+type DeviceUpdate struct {
+	Version      string   `json:"version"`
+	Capabilities []string `json:"capabilities"`
+}
+
 func (c *Controller) getAuthURL() string {
 	return c.baseURL("http") + "/ws/v1/auth"
 }
 
+func (c *Controller) getCapabilities() []string {
+	capabilities := make([]string, 0)
+	for capability, _ := range c.Device.Capabilities {
+		capabilities = append(capabilities, capability)
+	}
+
+	return capabilities
+}
+
 func (c *Controller) Authenticate() *AuthResponse {
-	jsonData, err := helpers.Format(c.Device)
+	deviceUpdate := DeviceUpdate{
+		Version:      c.Device.Version,
+		Capabilities: c.getCapabilities(),
+	}
+
+	jsonData, err := helpers.Format(deviceUpdate)
 	if err != nil {
 		log.Warn("Failed to format Device info")
 		os.Exit(1)
