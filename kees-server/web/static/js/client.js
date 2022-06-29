@@ -62,9 +62,6 @@ class KeesClient {
     let user = document.querySelector(".main .user .details");
     elements['user'] = this.elWrap(user);
 
-    let deviceID = document.querySelector(".info .id");
-    elements['deviceID'] = this.elWrap(deviceID);
-
     let logs = document.querySelector(".ws .logs");
     elements['logs'] = this.elWrap(logs);
 
@@ -152,8 +149,9 @@ class KeesClient {
     this.event("auth", "reset", {});
 
     this.actions.reset.hide();
-    this.elements.deviceID.clear();
-    this.elements.check.hide();
+    this.elements.getDevices.hide();
+    this.elements.devices.hide();
+    this.elements.deviceList.clear();
 
     // TODO: clean up icon grabbing
     var icons = document.querySelectorAll(".info i").forEach(e => {
@@ -161,6 +159,8 @@ class KeesClient {
     });
 
     this.actions.auth.show();
+
+    clearTimeout(this.getDevicesTimeout);
   }
 
   async getDevices(){
@@ -188,7 +188,7 @@ class KeesClient {
 
   renderDevices(data){
     this.elements.devices.show();
-    this.elements.deviceList.el.innerHTML = '';
+    this.elements.deviceList.clear();
 
     // for each device, render the device info and associated actions
     data.forEach(d => {
