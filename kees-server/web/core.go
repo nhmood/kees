@@ -26,8 +26,8 @@ func Configure(c config.ServerConfig) {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", Root)
 
-	fs := http.StripPrefix("/static/", http.FileServer(http.Dir("web/static/")))
-	router.PathPrefix("/static").Handler(fs)
+	fs := http.StripPrefix("/s/", http.FileServer(http.Dir("web/static/")))
+	router.PathPrefix("/s").Handler(fs)
 
 	broker := devices.NewBroker()
 	broker.Run()
