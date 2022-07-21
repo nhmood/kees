@@ -20,8 +20,8 @@ func main() {
 
 	helpers.Configure(Configuration)
 
-	client := device.NewController(Configuration)
-	client.Run()
+	device := device.NewController(Configuration)
+	device.Run()
 }
 
 func info() {
