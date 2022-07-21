@@ -1,6 +1,5 @@
 TODO
 =======
-[ ] - [controller] auth failure still attempts WS connection
 [ ] - [controller] create "build" process to build for rpi + package sample conf in tar and put in server/static
 [ ] - [controller] dockerize build
 [ ] - [server] add command ack on websocket (+ update of command)
@@ -8,13 +7,17 @@ TODO
 [ ] - [server] add users
 [ ] - [server] add websocket to client (and endpoints to support?)
 [ ] - [server] add refresh token jwt with longer (1week?) expiration for new access token jwt
-[ ] - [server] fix bug where client reset does not bring up login button again
 [ ] - [server] no capabilities (from current go-controller which doesnt support it) results in "" capability
 [ ] - [server] add bootstrap script to deliver from kees-server -> rpi
 [ ] - [controller] restructure device/ directory and overall handling of operations
+[ ] - [server] fix auth check on !200 response (invalid jwt still checkmarks the box)
 
 DONE
 =======
+6/28/22
+[x] - [controller] auth failure still attempts WS connection
+[x] - [server] fix reset button on client
+
 6/27/22
 [x] - [controller] add capabilities
 [x] - [controller] fix panic when no config provided
