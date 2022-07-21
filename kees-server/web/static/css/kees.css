@@ -1,5 +1,46 @@
 body {
   text-align: center;
+  padding-top: 150px;
+}
+
+a {
+  font-weight: 800;
+  text-transform: uppercase;
+  transition: color 0.25s ease-in;
+  text-decoration: none;
+}
+
+a:hover {
+}
+
+hr {
+  margin-top: 0px;
+}
+h1 {
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.nav {
+  text-align: right;
+}
+
+.nav a {
+  margin-right: 20px;
+}
+
+.auth {
+  border: 1px solid #afafaf;
+  width: 25%;
+  padding-top: 25px;
+  padding-bottom: 25px;
+  box-shadow: 10px 10px 5px #efefef;
+  margin: auto;
+  border-radius: 15px;
+}
+
+.auth label {
+  text-transform: uppercase;
 }
 
 pre {
