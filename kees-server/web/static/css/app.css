@@ -1,0 +1,178 @@
+body {
+  font-family: 'Ubuntu', sans-serif;
+
+
+
+  text-align: center;
+  padding-top: 150px;
+}
+
+a {
+  font-weight: 800;
+  color: #3891A6;
+  text-transform: uppercase;
+  transition: color 0.25s ease-in;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #245E6B;
+}
+
+hr {
+  margin-top: 0px;
+}
+h1 {
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.nav {
+  text-align: right;
+}
+
+.nav a {
+  margin-right: 20px;
+  margin-left: 20px;
+}
+
+.auth {
+  border: 1px solid #afafaf;
+  width: 25%;
+  padding-top: 25px;
+  padding-bottom: 25px;
+  box-shadow: 10px 10px 5px #efefef;
+  margin: auto;
+  border-radius: 15px;
+}
+
+.auth label {
+  text-transform: uppercase;
+}
+.hide { display: none }
+
+.login-spinner {
+  border-radius: 10px;
+  padding: 10px;
+  background: #efefef;
+}
+
+.device {
+  text-transform: uppercase;
+}
+
+.device .name {
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.device .version {
+  text-transform: none;
+}
+
+.device .hb {
+  font-weight: 800;
+}
+
+.device .details {
+  border-bottom: 1px solid #efefef;
+}
+
+.device .actions {
+  margin-top: 20px;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+
+.device .actions .header {
+  font-weight: 800;
+  font-size: 20px;
+}
+
+.device .commands .header {
+  font-size: 20px;
+  font-weight: 800;
+  border-bottom: 1px solid #efefef;
+  margin-bottom: 10px;
+}
+
+.device .commands .history.header {
+  font-size: 15px;
+  border-bottom: none;
+}
+
+.device .commands .history {
+  margin-bottom: 5px;
+  border-bottom: 2px solid #efefef
+}
+
+.device .commands .history .status {
+  border-radius: 50px;
+  padding: 3px;
+}
+
+.device .commands .history .status span {
+  padding: 5px;
+  color: white;
+  border-radius: 5px;
+}
+
+.success { background: #7FB069 }
+.pending { background: #245E6B }
+.error { background: #FE4A49 }
+
+.devices .device {
+  text-transform: uppercase;
+  border-bottom: 1px solid #efefef;
+}
+
+.devices .header {
+  text-transform: uppercase;
+  font-weight: 800;
+  border-bottom: 1px solid #efefef;
+}
+
+.devices .device {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding-bottom: 20px;
+  padding-top: 10px;
+}
+
+.devices .device .info {
+  text-align: left;
+}
+
+.devices .device .status i {
+  font-size: 20px;
+  margin-top: 50%;
+  vertical-align: bottom;
+}
+
+.devices .device .arrow i {
+  font-size: 20px;
+  margin-top: 50%;
+  vertical-align: bottom;
+  color: #3891A6;
+  transition: color 0.25s ease-in;
+}
+.devices .device .arrow i:hover {
+  color: #245E6B;
+}
+
+.devices .device .details .name {
+  font-weight: 800;
+  font-size: 20px;
+}
+
+.offline { color: #FE4A49; }
+.online { color: #7FB069; }
+
+button:disabled {
+  background: #efefef;
+  text-decoration: line-through;
+}
+
+.invisible {
+  opacity: 0%;
+}
