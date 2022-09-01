@@ -3,7 +3,6 @@ TODO
 [ ] - [controller] create "build" process to build for rpi + package sample conf in tar and put in server/static
 [ ] - [controller] dockerize build
 [ ] - [server] add command ack on websocket (+ update of command)
-[ ] - [server] add command history to web client
 [ ] - [server] add users
 [ ] - [server] add websocket to client (and endpoints to support?)
 [ ] - [server] add refresh token jwt with longer (1week?) expiration for new access token jwt
@@ -11,9 +10,14 @@ TODO
 [ ] - [server] add bootstrap script to deliver from kees-server -> rpi
 [ ] - [controller] restructure device/ directory and overall handling of operations
 [ ] - [server] fix auth check on !200 response (invalid jwt still checkmarks the box)
+[ ] - [server] add device creation
+[ ] - [server] add periodic device refresh
 
 DONE
 =======
+8/31/22
+[x] - [server] add command history to web client
+
 6/28/22
 [x] - [controller] auth failure still attempts WS connection
 [x] - [server] fix reset button on client
