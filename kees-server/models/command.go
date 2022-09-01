@@ -109,7 +109,13 @@ func (i CommandInterface) getRows(rows *sql.Rows) ([]*Command, error) {
 			continue
 		}
 		helpers.Debug(command)
+
 		commands = append(commands, &command)
+	}
+
+	// TODO: move to processor routine
+	for _, c := range commands {
+		c.Expired()
 	}
 
 	if err := rows.Err(); err != nil {
@@ -180,6 +186,17 @@ func (command Command) Update() error {
 func (command Command) UpdateStatus(status string) error {
 	command.Status = status
 	return command.Update()
+}
+
+func (command Command) Expired() error {
+	if command.Status == "done" || command.Status == "error" {
+		return nil
+	}
+
+	if time.Now().After(command.UpdatedAt.Add(time.Second * 30)) {
+		return command.UpdateStatus("error")
+	}
+	return nil
 }
 
 func (command Command) Delete() error {
