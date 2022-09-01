@@ -30,9 +30,9 @@ type CommandInterface struct {
 
 var Commands = CommandInterface{
 	SQL: map[string]string{
-		"All":      "SELECT * FROM commands LIMIT $1 OFFSET $2",
+		"All":      "SELECT * FROM commands LIMIT $1 ORDER BY created_at DESC OFFSET $2",
 		"ByID":     "SELECT * FROM commands WHERE id = $1",
-		"ByDevice": "SELECT * FROM commands WHERE device_id = $1 LIMIT $2 OFFSET $3",
+		"ByDevice": "SELECT * FROM commands WHERE device_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3",
 		"Insert": `
 			INSERT INTO commands
 				(id, created_at, updated_at, operation, status, metadata, client, device_id)
