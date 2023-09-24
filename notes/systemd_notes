@@ -1,0 +1,5 @@
+systemd stuff / initrc stuff was kind of complicated
+not a lot of great examples, tried to use crond as an example
+getting things to run in scope is kind of tricky with relative scope and stuff
+weird behavior where it won't stop and will block, preventing all next calls
+had to switch to start_daemon, that was wonky and syntax was strange

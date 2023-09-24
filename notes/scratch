@@ -1,0 +1,51 @@
+https://github.com/marin-m/SongRec/blob/27a97f43f57f6653e38bc19f9a2f14f96ec513b8/python-version/fingerprinting/communication.py
+https://devkimchi.com/2020/08/12/turning-raspberry-pi-into-remote-controller/
+http://lirc.sourceforge.net/remotes/sony/RM-D90
+https://gist.github.com/ijt/954488/93591e2af496e530a8fcc4d2d443cb8327f7122b
+
+
+
+# audio fingerprinting
+https://news.ycombinator.com/item?id=29767592
+https://www.royvanrijn.com/blog/2010/06/creating-shazam-in-java/
+https://news.ycombinator.com/item?id=15809291
+https://news.ycombinator.com/item?id=909263
+https://news.ycombinator.com/item?id=5724442
+https://news.ycombinator.com/item?id=9594480
+https://news.ycombinator.com/item?id=9594480
+https://emysound.com/blog/open-source/2020/06/12/how-audio-fingerprinting-works.html
+https://news.ycombinator.com/item?id=29749817
+
+
+
+
+
+https://raspberrypi.stackexchange.com/questions/5258/how-can-i-remove-the-gui-from-raspbian-debian
+https://raspberrypi.stackexchange.com/questions/5258/how-can-i-remove-the-gui-from-raspbian-debian
+https://raspberrypi.stackexchange.com/questions/4745/how-to-uninstall-x-server-and-desktop-manager-when-running-as-headless-server
+https://forums.raspberrypi.com/viewtopic.php?t=246421
+https://www.mikekasberg.com/blog/2020/06/19/headless-setup-for-a-raspberry-pi-zero-w.html
+https://aallan.medium.com/setting-up-a-headless-raspberry-pi-zero-3ded0b83f274
+https://forums.raspberrypi.com/viewtopic.php?t=204882
+https://aallan.medium.com/setting-up-a-headless-raspberry-pi-zero-3ded0b83f274
+https://desertbot.io/blog/headless-pi-zero-w-wifi-setup-windows
+
+
+
+# more stuff about systemd initd
+https://stackoverflow.com/questions/68225679/log-output-from-service-in-var-log-service-name-sysvinit
+https://stackoverflow.com/questions/72289878/how-to-redirect-the-daemon-output-to-pipe-with-busyboxs-start-stop-daemon
+https://gist.github.com/albertyw/225825b257809715d266
+https://stackoverflow.com/questions/8251933/how-can-i-log-the-stdout-of-a-process-started-by-start-stop-daemon
+
+# TIMERS
+https://opensource.com/article/20/7/systemd-timers
+https://uace.github.io/learning/init-vs-systemd-what-is-an-init-daemon#:~:text=Init%20and%20Systemd%20are%20both,systemctl%20to%20manage%20Linux%20services.
+
+
+https://www.alexedwards.net/blog/organising-database-access
+
+
+# server
+https://github.com/blockloop/scan
+https://github.com/jmoiron/sqlx
